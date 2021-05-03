@@ -12,12 +12,13 @@ const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
 const app = express();
 const bodyParser = require('body-parser');
-//const cors = require('cors');
-//const convert = require('xml-js');
-//const fetch = require('node-fetch');
-//app.use(cors());
-//app.use(bodyParser.urlencoded({extended: false}));
-//app.use(express.json());
+const cors = require('cors');
+const convert = require('xml-js');
+const fetch = require('node-fetch');
+
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.json());
 app.use(express.urlencoded({ extened: true }));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
@@ -31,7 +32,7 @@ const UserSchema = new mongoose.Schema({
 
 User = new mongoose.model("User", UserSchema);
 
-var authenticateUser = module.exports = (req, res, next) => {
+var authenticateUser = (req, res, next) => {
   if (!req.session.user) {
     res.send("Please log in first");
     return;
