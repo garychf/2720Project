@@ -6,16 +6,45 @@ Au Chun Hei    1155125607
 Shea Wing Tung 1155126215
 */
 
-const express = require('express');
+const express = require("express");
+const mongoose = require("mongoose");
+const cookieSession = require("cookie-session");
+const bcrypt = require("bcrypt");
 const app = express();
 const bodyParser = require('body-parser');
-const cors = require('cors');
-const convert = require('xml-js');
-const fetch = require('node-fetch');
-app.use(cors());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(express.json());
+//const cors = require('cors');
+//const convert = require('xml-js');
+//const fetch = require('node-fetch');
+//app.use(cors());
+//app.use(bodyParser.urlencoded({extended: false}));
+//app.use(express.json());
+app.use(express.urlencoded({ extened: true }));
+app.use(express.static("public"));
+app.set("view engine", "ejs");
+app.use(cookieSession({keys: ["JSONToBeImplemented"],}));
 
+const UserSchema = new mongoose.Schema({
+  username: {type: String,required: true,},
+  password: {type: String,required: true,},
+  favPlace: {type: Number}
+});
+
+User = new mongoose.model("User", UserSchema);
+
+var authenticateUser = module.exports = (req, res, next) => {
+  if (!req.session.user) {
+    res.send("Please log in first");
+    return;
+  }
+  next();
+};
+
+mongoose.connect("mongodb://localhost/dataBase", {
+  }).then(() => {
+    console.log("Successfully connected to MongoDB :)");
+  }).catch((err) => {
+    console.log(err);
+});
 
 const url = 'https://resource.data.one.gov.hk/td/journeytime.xml';
 const map = 'https:'
@@ -92,14 +121,9 @@ const COLOUR_ID={
 	"-1":"Not applicable"
 };
 
-
 app.get('/te',function(req,res){
 	res.send('</body>');
 });
-
-
-
-
 
 app.get('/place/:id', function (req,res) {
 	var place = req.params['id'];
@@ -140,17 +164,79 @@ app.get('/place/:id', function (req,res) {
 	});
 });
 
-//0:locationid
-//1:destinationid
-//2:capturedata
-//3journeytype
-//4journeydata
-//5colourid
-
-
-app.all('/*', function (req, res) {
-	res.send("Test");
+app.get("/", (req, res) => {
+    res.render("index");
+  })
+  .get("/login", (req, res) => {
+    res.render("login");
+  })
+  .get("/register", (req, res) => {
+    res.render("register");
+  })
+  .get("/registerSuccess", (req, res) => {
+    res.render("registerSuccess");
+  })
+  .get("/home", authenticateUser, (req, res) => {
+    res.render("home", { user: req.session.user });
 });
 
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
 
-const server = app.listen(2000);
+    if (!username || !password) {
+      res.send("You have not filled in all the fields");
+      return;
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      res.send("invalid username or password");
+      return;
+    }
+
+    const pwCheck = await bcrypt.compare(password,user.password);
+    if (!pwCheck) {
+      res.send("Password is wrong");
+      return;
+    }
+
+    req.session.user = {
+      username,
+    };
+    res.redirect("/home");
+});
+
+app.post("/register", async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      res.send("Please enter all the fields");
+      return;
+    }
+
+    const user = await User.findOne({ username });
+    if (user) {
+      res.send("The username is taken");
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = new User({ username, password: hashedPassword });
+
+    newUser.save().then(() => {
+        res.redirect("/registerSuccess");
+        return;
+      })
+      .catch((err) => console.log(err));
+});
+
+app.get("/logout", authenticateUser, (req, res) => {
+  req.session.user = null;
+  res.redirect("/login");
+});
+
+// server config
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server started listening on port: ${PORT}`);
+});
