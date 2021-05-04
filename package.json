@@ -19,5 +19,13 @@
     "node-fetch": "^2.6.1",
     "xml-js": "^1.6.11"
   },
-  "description": "Journey time indicators"
+  "description": "Journey time indicators",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/garychf/2720Project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/garychf/2720Project/issues"
+  },
+  "homepage": "https://github.com/garychf/2720Project#readme"
 }
