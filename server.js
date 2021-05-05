@@ -37,7 +37,7 @@ var Loc = mongoose.model('Loc', LocSchema);
 
 const UserSchema =  new mongoose.Schema({
 	username: {type: String, require: true, unique: true},
-	pw: {type: String, require: true},
+	password: {type: String, require: true},
 	fav: [{place: String}]
 });
 
@@ -129,9 +129,6 @@ const COLOUR_ID={
 	"-1":"Not applicable"
 };
 
-app.get('/te',function(req,res){
-	res.send('</body>');
-});
 
 app.get('/place/:id', function (req,res) {
 	var place = req.params['id'];
@@ -153,8 +150,6 @@ app.get('/place/:id', function (req,res) {
 	    			ret_data = ret_data + "<h4>Destination " + j + ": " + DESTINATION_ID[result[i]['elements'][1]['elements'][0]['text']] + " (" + result[i]['elements'][1]['elements'][0]['text'] + ")</h4>";
 	    			if(result[i]['elements'][3]['elements'][0]['text'] === "1"){
 	    				ret_data = ret_data + "<p>The estimated travel time is " + result[i]['elements'][4]['elements'][0]['text'] + " minutes.</p>";
-	    				console.log(parseInt(result[i]['elements'][3]['elements'][0]['text']));
-	    				console.log(fastest);
 	    				if(parseInt(result[i]['elements'][4]['elements'][0]['text'])<fastest){
 	    					fastest = parseInt(result[i]['elements'][4]['elements'][0]['text']);
 	    					advice = i;
@@ -243,9 +238,6 @@ app.get("/logout", authenticateUser, (req, res) => {
   res.redirect("/login");
 });
 
-app.get('/', function(req,res){
-	res.render("admin");
-});
 
 app.post('/loc', function(req, res){
 	var l = new Loc ({id: req.body['id'], name: req.body['name'], latitude: req.body['latitude'], longitude: req.body['longitude']});
@@ -295,7 +287,7 @@ app.delete('/loc', function(req, res){
 });
 
 app.post('/user', function(req, res){
-	var u = new User ({username: req.body['username'], pw: req.body['password']});
+	var u = new User ({username: req.body['username'], password: req.body['password']});
 	u.save(function(err){
 		if (err){
 			res.send(err);
@@ -311,7 +303,7 @@ app.get('/user', function(req, res){
 			res.send(err);
 			return;
 		}
-		res.send("Username: " + u.username + "<br>\n" + "Password" + u.pw + "<br>\n" + "Favourite Place" + u.fav + "Ref: " + u);
+		res.send("Username: " + u.username + "<br>\n" + "Password" + u.password + "<br>\n" + "Favourite Place" + u.fav + "Ref: " + u);
 	});
 });
 
@@ -322,7 +314,7 @@ app.put('/user', function(req, res){
 				res.send(err);
 				return;
 			}
-			u.pw = req.body['password']; 
+			u.password = req.body['password']; 
 			u.fav = req.body['favPlace'];
 			u.save();
 			res.send(u);
@@ -335,7 +327,7 @@ app.delete('/user', function(req, res){
 			res.send(err);
 			return;
 		}
-		res.send("Username: " + u.username + "<br>\n" + "Password" + u.pw + "<br>\n" + "Favourite Place" + u.fav + "<br>\n" + "is successfully deleted." + "<br>\n" + "Ref: " + u);
+		res.send("Username: " + u.username + "<br>\n" + "Password" + u.password + "<br>\n" + "Favourite Place" + u.fav + "<br>\n" + "is successfully deleted." + "<br>\n" + "Ref: " + u);
 		u.remove();
 	});
 });
