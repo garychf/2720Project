@@ -30,7 +30,7 @@ const LocSchema =  new mongoose.Schema({
   name: {type: String,required: true},
   latitude: {type: Number,required: true},
   longitude: {type: Number,required: true},
-  comment: [{user: String},{words: String}]
+  comment: [{user: String, body: String}]
 });
 
 var Loc = mongoose.model('Loc', LocSchema);
@@ -130,44 +130,6 @@ const COLOUR_ID={
 	"-1":"Not applicable"
 };
 
-/*
-app.get('/place/:id', function (req,res) {
-	var place = req.params['id'];
-	var ret_data = "";
-	var j = 0;
-	var fastest = 1000;
-	var advice = -1;
-	fetch(url)
-  	.then(resp => resp.text())
-    .then(json => convert.xml2js(json,{ignoreDeclaration: true}))
-    .then(data => data['elements'][0]['elements'])
-    .then(result => {
-    	if(!(place in LOCATION_ID))
-    		res.send("The place id is incorrect!");
-    	else{
-	    	for(i=0;i<35;i++){
-	    		if(result[i]['elements'][0]['elements'][0]['text'] === place){
-	    			j++;
-	    			ret_data = ret_data + "<h4>Destination " + j + ": " + DESTINATION_ID[result[i]['elements'][1]['elements'][0]['text']] + " (" + result[i]['elements'][1]['elements'][0]['text'] + ")</h4>";
-	    			if(result[i]['elements'][3]['elements'][0]['text'] === "1"){
-	    				ret_data = ret_data + "<p>The estimated travel time is " + result[i]['elements'][4]['elements'][0]['text'] + " minutes.</p>";
-	    				if(parseInt(result[i]['elements'][4]['elements'][0]['text'])<fastest){
-	    					fastest = parseInt(result[i]['elements'][4]['elements'][0]['text']);
-	    					advice = i;
-	    				}
-	    			}
-	    			else ret_data = ret_data + "<p>Traffic congestion!</p>";
-	    			ret_data = ret_data +"<p>The color code is " + COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']] + "</p>"+ "<hr>";
-	    		}
-	    	}
-	    	if(!(advice === -1))
-	    		ret_data = ret_data +"<h3>We advise you to choose "+DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']]+ ", the travel time is only "+ fastest+ " minutes.</h3>";
-	    	ret_data = <body><h3>'+ loc[ch[place]]["name"]+'</h3><div id="map"></div><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=initMap&libraries=&v=weekly"async></script>' + "<h3>There are " + j + " destination.</h3>" + ret_data +"<p>Last updated: " + result[0]['elements'][2]['elements'][0]['text'] +"</p></body>";
-	    	res.send(ret_data);
-    }
-	});
-});
-*/
 app.get("/", (req, res) => {
     res.render("index");
   })
@@ -221,7 +183,21 @@ app.get("/place/:id", authenticateUser, (req, res) => {
 	    			ret_data[3*j-1] = "The color code is " + COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']];
 	    		}
 	    	}
-    		res.render("place", { user: req.session.user , name:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']]});
+	    	var n =0;
+	    	Loc.aggregate()
+		    .match({id: req.params['id']})
+		    .project({
+		        comment: {$size:"$comment"}
+		    })
+		    .exec(function(err, comment) {
+		        n =comment[0]["comment"];
+		        var com = [];
+				for (var i = 0; i < n; i++) {
+				   com.push(l.comment[i]["user"]);
+				   com.push(l.comment[i]["body"]);
+				}
+		        res.render("place", { user: req.session.user , name:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']] , num:n, comment:com});
+		    });
     	});
 	});
 });
@@ -254,7 +230,6 @@ app.post("/login", async (req, res) => {
 
 app.post("/register", async (req, res) => {
     const { username, password } = req.body;
-
     if (!username || !password) {
       res.send("Please enter all the fields");
       return;

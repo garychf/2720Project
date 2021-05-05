@@ -9,10 +9,18 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css?family=Economica" rel="stylesheet">
 	<style type="text/css">#map {height: 400px;width: 100%;}</style>
-	<script>function initMap() { const uluru = { lat: <%= latitude%>,lng:<%= longitude%>};const map = new google.maps.Map(document.getElementById("map"), {zoom: 15, center: uluru,});const marker = new google.maps.Marker({position: uluru,map: map,});}</script>
+	<script>function initMap() { const uluru = { lat: <%= latitude%>,lng:<%= longitude%>};const map = new google.maps.Map(document.getElementById("map"), {zoom: 15, center: uluru,});const marker = new google.maps.Marker({position: uluru,map: map,});}
+	function loadcomment(){
+		for(var i=0;i < 2;i++){
+			let newComment = document.createElement("div");
+			newComment.innerHTML = '<hr><div><h4> <%= comment[0] %></h4><h3><%= comment[1] %></h3></div>';
+			document.querySelector("#comment").appendChild(newComment);
+		}
+	}
+	</script>
 </head>
 
-<body style="font-family:'Economica', sans-serif">
+<body style="font-family:'Economica', sans-serif" onload="loadcomment();">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top my-sm-3">
 		<ul class="navbar-nav">
@@ -46,6 +54,10 @@
 	<hr>
 	<h2>We advise you to choose <%= advice %>, the travel time is only <%= fastest %> minutes!</h2>
 </div>
+<div id="comment" class="container bg-warning">
+<h1 class="text-light">Do you have any comments about <%= name %></h1>
+</div>
+
 <p style="text-align:right;">Last updated: <%= time %></p>
 </div>
 
