@@ -180,7 +180,9 @@ app.get("/", (req, res) => {
     res.render("registerSuccess");
   });
   
-  
+app.get("/fav", authenticateUser, (req, res) => {
+    res.render("favPlace",{ user: req.session.user });
+});
 
 app.get("/home", authenticateUser, (req, res) => {
     res.render("home", { user: req.session.user })
