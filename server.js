@@ -186,8 +186,7 @@ app.get("/fav", authenticateUser, (req, res) => {
 });
 
 app.get("/home", authenticateUser, (req, res) => {
-    Loc.find().toArray(function(err, list) {
-    res.render("home", { user: req.session.user, info:list})}
+    res.render("home", { user: req.session.user })
 });
 
 app.get("/place/:id", authenticateUser, (req, res) => {
