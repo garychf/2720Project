@@ -16,6 +16,7 @@ const cors = require('cors');
 const convert = require('xml-js');
 const fetch = require('node-fetch');
 
+mongoose.connect("mongodb://s1155124829:x33813@localhost/s1155124829");
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json());
@@ -24,13 +25,23 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(cookieSession({keys: ["JSONToBeImplemented"],}));
 
-const UserSchema = new mongoose.Schema({
-  username: {type: String,required: true,},
-  password: {type: String,required: true,},
-  favPlace: {type: Number}
+const LocSchema =  new mongoose.Schema({
+  id: {type: String,unique: true,required: true},
+  name: {type: String,required: true},
+  latitude: {type: Number,required: true},
+  longitude: {type: Number,required: true}
 });
 
-User = new mongoose.model("User", UserSchema);
+var Loc = mongoose.model('Loc', LocSchema);
+
+
+const UserSchema =  new mongoose.Schema({
+	username: {type: String, require: true, unique: true},
+	pw: {type: String, require: true},
+	fav: [{place: String}]
+});
+
+var User = mongoose.model('User', UserSchema);
 
 var authenticateUser = (req, res, next) => {
   if (!req.session.user) {
@@ -40,15 +51,10 @@ var authenticateUser = (req, res, next) => {
   next();
 };
 
-mongoose.connect("mongodb://localhost/dataBase", {
-  }).then(() => {
-    console.log("Successfully connected to MongoDB :)");
-  }).catch((err) => {
-    console.log(err);
-});
+
 
 const url = 'https://resource.data.one.gov.hk/td/journeytime.xml';
-const map = 'https:'
+
 const LOCATION_ID={
 	"H1": "Gloucester Road eastbound near the Revenue Tower",
 	"H2": "Canal Road Flyover northbound near exit of Aberdeen Tunnel",
@@ -100,6 +106,7 @@ const loc=[
 	{id:"SJ4", name:"San Tin Highway near Pok Wai Road", latitude: 22.464106829, longitude: 114.053710459},
 	{id:"SJ5", name:"Tuen Mun Road near Tuen Mun Heung Sze Wui Road", latitude: 22.401075772, longitude: 113.97722659},
 ];
+
 
 const DESTINATION_ID={
 	"CH": "Cross Harbour Tunnel",
@@ -236,8 +243,104 @@ app.get("/logout", authenticateUser, (req, res) => {
   res.redirect("/login");
 });
 
-// server config
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server started listening on port: ${PORT}`);
+app.get('/', function(req,res){
+	res.render("admin");
 });
+
+app.post('/loc', function(req, res){
+	var l = new Loc ({id: req.body['id'], name: req.body['name'], latitude: req.body['latitude'], longitude: req.body['longitude']});
+	l.save(function(err){
+		if (err){
+			res.send(err);
+			return;
+		}
+		res.send(l);
+	});
+});
+
+app.get('/loc', function(req, res){
+	Loc.findOne({id: req.body['id']}, function(err, l){
+		if(err){
+			res.send(err);
+			return;
+		}
+		res.send("Location ID: " + l.id + "<br>\n" + "Loaction Name: " + l.name + "<br>\n" + "Latitude: " + l.latitude + "<br>\n" + "Longitude: " + l.longitude + "Ref: " + l);
+	});
+});
+
+app.put('/loc', function(req, res){
+	Loc.findOne({id: req.body['id']} , 
+		function(err, l){
+			if (err){
+				res.send(err);
+				return;
+			}
+			l.name = req.body['name'];
+			l.latitude = req.body['latitude'];
+			l.longitude = req.body['longitude'];
+			l.save();
+			res.send(l);
+		});
+});
+
+app.delete('/loc', function(req, res){
+	Loc.findOne({id: req.body['id']}, 'id name latitude longitude', function(err, l){
+		if(err){
+			res.send(err);
+			return;
+		}
+		res.send("Location ID: " + l.id + "<br>\n" + "Loaction Name: " + l.name + "<br>\n" + "Latitude: " + l.latitude + "<br>\n" + "Longitude: " + l.longitude + "<br>\n" + "is successfully deleted." + "<br>\n" + "Ref: " + l);
+		l.remove();
+	});
+});
+
+app.post('/user', function(req, res){
+	var u = new User ({username: req.body['username'], pw: req.body['password']});
+	u.save(function(err){
+		if (err){
+			res.send(err);
+			return;
+		}
+		res.send(u);
+	});
+});
+
+app.get('/user', function(req, res){
+	User.findOne({username: req.body['username']},function(err, u){
+		if(err){
+			res.send(err);
+			return;
+		}
+		res.send("Username: " + u.username + "<br>\n" + "Password" + u.pw + "<br>\n" + "Favourite Place" + u.fav + "Ref: " + u);
+	});
+});
+
+app.put('/user', function(req, res){
+	User.findOne({username: req.body['username']},
+		function(err,u){
+			if(err){
+				res.send(err);
+				return;
+			}
+			u.pw = req.body['password']; 
+			u.fav = req.body['favPlace'];
+			u.save();
+			res.send(u);
+		});
+});
+
+app.delete('/user', function(req, res){
+	User.findOne({username: req.body['username']}, 'username password favPlace', function(err, u){
+		if(err){
+			res.send(err);
+			return;
+		}
+		res.send("Username: " + u.username + "<br>\n" + "Password" + u.pw + "<br>\n" + "Favourite Place" + u.fav + "<br>\n" + "is successfully deleted." + "<br>\n" + "Ref: " + u);
+		u.remove();
+	});
+});
+
+
+const server = app.listen(2073);
+// server config
+
