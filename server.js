@@ -29,7 +29,8 @@ const LocSchema =  new mongoose.Schema({
   id: {type: String,unique: true,required: true},
   name: {type: String,required: true},
   latitude: {type: Number,required: true},
-  longitude: {type: Number,required: true}
+  longitude: {type: Number,required: true},
+  comment: [{user: String},{words: String}]
 });
 
 var Loc = mongoose.model('Loc', LocSchema);
