@@ -18,7 +18,7 @@ const fetch = require('node-fetch');
 
 mongoose.connect("mongodb://s1155124829:x33813@localhost/s1155124829");
 app.use(cors());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extened: true }));
 app.use(express.static("public"));
@@ -129,7 +129,7 @@ const COLOUR_ID={
 	"-1":"Not applicable"
 };
 
-
+/*
 app.get('/place/:id', function (req,res) {
 	var place = req.params['id'];
 	var ret_data = "";
@@ -161,12 +161,12 @@ app.get('/place/:id', function (req,res) {
 	    	}
 	    	if(!(advice === -1))
 	    		ret_data = ret_data +"<h3>We advise you to choose "+DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']]+ ", the travel time is only "+ fastest+ " minutes.</h3>";
-	    	ret_data = '<head><style type="text/css">#map {height: 400px;width: 100%;}</style><script>function initMap() { const uluru = { lat: ' + loc[ch[place]]["latitude"] + ',lng:' + loc[ch[place]]["longitude"] + '};const map = new google.maps.Map(document.getElementById("map"), {zoom: 15, center: uluru,});const marker = new google.maps.Marker({position: uluru,map: map,});}</script></head><body><h3>'+ loc[ch[place]]["name"]+'</h3><div id="map"></div><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=initMap&libraries=&v=weekly"async></script>' + "<h3>There are " + j + " destination.</h3>" + ret_data +"<p>Last updated: " + result[0]['elements'][2]['elements'][0]['text'] +"</p></body>";
+	    	ret_data = <body><h3>'+ loc[ch[place]]["name"]+'</h3><div id="map"></div><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=initMap&libraries=&v=weekly"async></script>' + "<h3>There are " + j + " destination.</h3>" + ret_data +"<p>Last updated: " + result[0]['elements'][2]['elements'][0]['text'] +"</p></body>";
 	    	res.send(ret_data);
     }
 	});
 });
-
+*/
 app.get("/", (req, res) => {
     res.render("index");
   })
@@ -178,9 +178,48 @@ app.get("/", (req, res) => {
   })
   .get("/registerSuccess", (req, res) => {
     res.render("registerSuccess");
-  })
-  .get("/home", authenticateUser, (req, res) => {
-    res.render("home", { user: req.session.user });
+  });
+  
+  
+
+app.get("/home", authenticateUser, (req, res) => {
+    res.render("home", { user: req.session.user })
+});
+
+app.get("/place/:id", authenticateUser, (req, res) => {
+	Loc.findOne({id: req.params['id']}, function(err, l){
+		if(err){
+			res.send(err);
+			return;
+		}
+		if (l==null) {res.send("The place is empty."); return;}
+		fetch(url)
+  		.then(resp => resp.text())
+    	.then(json => convert.xml2js(json,{ignoreDeclaration: true}))
+    	.then(data => data['elements'][0]['elements'])
+    	.then(result => {
+    		var j = 0;
+			var fastest = 1000;
+			var advice = -1;
+			var ret_data = ["","","","","",""];
+    		for(i=0;i<35;i++){
+	    		if(result[i]['elements'][0]['elements'][0]['text'] === l.id){
+	    			j++;
+	    			ret_data[3*j-3] = "Destination " + j + ": " + DESTINATION_ID[result[i]['elements'][1]['elements'][0]['text']];
+	    			if(result[i]['elements'][3]['elements'][0]['text'] === "1"){
+	    				ret_data[3*j-2] = "The estimated travel time is " + result[i]['elements'][4]['elements'][0]['text'] + " minutes.";
+	    				if(parseInt(result[i]['elements'][4]['elements'][0]['text'])<fastest){
+	    					fastest = parseInt(result[i]['elements'][4]['elements'][0]['text']);
+	    					advice = i;
+	    				}
+	    			}
+	    			else ret_data[3*j-2] = "Traffic congestion!";
+	    			ret_data[3*j-1] = "The color code is " + COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']];
+	    		}
+	    	}
+    		res.render("place", { user: req.session.user , name:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']]});
+    	});
+	});
 });
 
 app.post("/login", async (req, res) => {
