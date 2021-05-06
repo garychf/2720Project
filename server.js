@@ -142,14 +142,14 @@ app.get("/", (req, res) => {
   .get("/registerSuccess", (req, res) => {
     res.render("registerSuccess");
   });
-  
+
+//favourite list page
 app.get("/fav", authenticateUser, (req, res) => {
 	User.findOne({username:req.session.user.username},function(error,u){
 		if(error){
 			res.send(error);
 			return;
 		}
-		console.log(u.fav);
 		res.render("favPlace", { user: req.session.user ,fa: u.fav});
 	});
 });
@@ -159,6 +159,7 @@ app.get("/home", authenticateUser, (req, res) => {
     res.render("home", { user: req.session.user, info:list})})
 });
 
+//single place page
 app.get("/place/:id", authenticateUser, (req, res) => {
 	Loc.findOne({id: req.params['id']}, function(err, l){
 		if(err){
@@ -259,7 +260,7 @@ app.get("/logout", authenticateUser, (req, res) => {
   res.redirect("/login");
 });
 
-
+//create loc from db
 app.post('/loc', function(req, res){
 	var l = new Loc ({id: req.body['id'], name: req.body['name'], latitude: req.body['latitude'], longitude: req.body['longitude']});
 	l.save(function(err){
@@ -271,6 +272,7 @@ app.post('/loc', function(req, res){
 	});
 });
 
+//read loc from db
 app.get('/loc', function(req, res){
 	Loc.findOne({id: req.body['id']}, function(err, l){
 		if(err){
@@ -281,6 +283,7 @@ app.get('/loc', function(req, res){
 	});
 });
 
+//edit loc from db
 app.put('/loc', function(req, res){
 	Loc.findOne({id: req.body['id']} , 
 		function(err, l){
@@ -296,6 +299,7 @@ app.put('/loc', function(req, res){
 		});
 });
 
+//delete loc from db
 app.delete('/loc', function(req, res){
 	Loc.findOne({id: req.body['id']}, 'id name latitude longitude', function(err, l){
 		if(err){
@@ -307,6 +311,7 @@ app.delete('/loc', function(req, res){
 	});
 });
 
+//create user from db
 app.post('/user', function(req, res){
 	var u = new User ({username: req.body['username'], password: req.body['password']});
 	u.save(function(err){
@@ -318,6 +323,7 @@ app.post('/user', function(req, res){
 	});
 });
 
+//read user from db
 app.get('/user', function(req, res){
 	User.findOne({username: req.body['username']},function(err, u){
 		if(err){
@@ -328,6 +334,7 @@ app.get('/user', function(req, res){
 	});
 });
 
+//edit user from db
 app.put('/user', function(req, res){
 	User.findOne({username: req.body['username']},
 		function(err,u){
@@ -342,6 +349,7 @@ app.put('/user', function(req, res){
 		});
 });
 
+//delete user from db
 app.delete('/user', function(req, res){
 	User.findOne({username: req.body['username']}, 'username password favPlace', function(err, u){
 		if(err){
@@ -353,6 +361,7 @@ app.delete('/user', function(req, res){
 	});
 });
 
+//add to favourite
 app.post('/fav', function(req, res){
 	User.update(
 	    {username: req.body['user']}, 
@@ -367,6 +376,7 @@ app.post('/fav', function(req, res){
 	);
 });
 
+//remove from favourite
 app.put('/remfav', function(req, res){
 	User.update(
 	    {username: req.body['user']}, 
@@ -383,6 +393,7 @@ app.put('/remfav', function(req, res){
 
 });
 
+//leave new comment
 app.put('/putloc/:id', function(req, res){
 	var newcom = { user: req.body['user'], body: req.body['body'] };
 	Loc.update(
