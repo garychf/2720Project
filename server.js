@@ -156,7 +156,8 @@ app.get("/fav", authenticateUser, (req, res) => {
 
 app.get("/home", authenticateUser, (req, res) => {
     Loc.find({},function(err, list) {
-    res.render("home", { user: req.session.user, info:list})});
+    res.render("home", { user: req.session.user, info:list});
+    });
 });
 
 //single place page
