@@ -149,7 +149,7 @@ app.get("/fav", authenticateUser, (req, res) => {
 
 app.get("/home", authenticateUser, (req, res) => {
     Loc.find().toArray(function(err, list) {
-    res.render("home", { user: req.session.user, info:list})}
+    res.render("home", { user: req.session.user, info:list})})
 });
 
 app.get("/place/:id", authenticateUser, (req, res) => {
@@ -183,21 +183,8 @@ app.get("/place/:id", authenticateUser, (req, res) => {
 	    			ret_data[3*j-1] = "The color code is " + COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']];
 	    		}
 	    	}
-	    	var n =0;
-	    	Loc.aggregate()
-		    .match({id: req.params['id']})
-		    .project({
-		        comment: {$size:"$comment"}
-		    })
-		    .exec(function(err, comment) {
-		        n =comment[0]["comment"];
-		        var com = [];
-				for (var i = 0; i < n; i++) {
-				   com.push(l.comment[i]["user"]);
-				   com.push(l.comment[i]["body"]);
-				}
-		        res.render("place", { user: req.session.user , name:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']] , num:n, comment:com});
-		    });
+
+			res.render("place", { user: req.session.user , id:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']] ,comment:l.comment});
     	});
 	});
 });
@@ -350,6 +337,20 @@ app.delete('/user', function(req, res){
 	});
 });
 
+app.put('/putloc/:id', function(req, res){
+	var newcom = { user: req.body['user'], body: req.body['body'] };
+	Loc.update(
+	    {id: req.params['id']}, 
+	    { $push: { comment: newcom } },
+	    function (error, success) {
+	        if (error) {
+	            res.send(error);
+	        } else {
+	            res.send(success);
+	        }
+    	}
+	);
+});
 
 const server = app.listen(2073);
 // server config

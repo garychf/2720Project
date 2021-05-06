@@ -9,22 +9,37 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css?family=Economica" rel="stylesheet">
 	<style type="text/css">#map {height: 400px;width: 100%;}</style>
-	<script>function initMap() { const uluru = { lat: <%= latitude%>,lng:<%= longitude%>};const map = new google.maps.Map(document.getElementById("map"), {zoom: 15, center: uluru,});const marker = new google.maps.Marker({position: uluru,map: map,});}
-	function loadcomment(){
-		for(var i=0;i < 2;i++){
-			let newComment = document.createElement("div");
-			newComment.innerHTML = '<hr><div><h4> <%= comment[0] %></h4><h3><%= comment[1] %></h3></div>';
-			document.querySelector("#comment").appendChild(newComment);
+	
+	<script>
+		function initMap() { 
+			const uluru = { lat: <%= latitude%>,lng:<%= longitude%>};const map = new google.maps.Map(document.getElementById("map"), {zoom: 15, center: uluru,});const marker = new google.maps.Marker({position: uluru,map: map,});
 		}
-	}
 	</script>
+	<script>
+		function putcom() {
+	      if(typeof(document.getElementById('c'))!="undefined" && document.getElementById('c')!= null){
+	        var data = {
+	          user : "<%= user.username %>",
+	          body: document.getElementById('c').value
+	        };
+	      fetch('http://csci2720-g73.cse.cuhk.edu.hk/putloc/<%= id %>',
+		      { mode: 'cors',
+		      method: 'PUT',
+		      headers: {'Content-Type': 'application/json'},
+		      body: JSON.stringify(data)
+		      })
+	      .then((response)=>location.reload());
+	      }
+    	}
+	</script>
+
 </head>
 
-<body style="font-family:'Economica', sans-serif" onload="loadcomment();">
+<body style="font-family:'Economica', sans-serif">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top my-sm-3">
 		<ul class="navbar-nav">
-			<li class="nav-item"><a class="nav-link">Hello, <%= user.username %></a></li>
+			<li class="nav-item"><a href="/home" class="nav-link">Hello, <%= user.username %></a></li>
 	    <li class="nav-item"><a href="/fav" class="nav-link text-success">Favourote List</a></li>
 			<li class="nav-item"><a href="/logout" class="nav-link text-danger">Logout</a></li>
 		</ul>
@@ -53,12 +68,23 @@
 	<h3><%= res[8] %></h3>
 	<hr>
 	<h2>We advise you to choose <%= advice %>, the travel time is only <%= fastest %> minutes!</h2>
+	<p style="text-align:right;">Last updated: <%= time %></p>
 </div>
-<div id="comment" class="container bg-warning">
-<h1 class="text-light">Do you have any comments about <%= name %></h1>
+<div id="comment" class="container bg-light">
+<h1 class="text-success">Do you have any comments about <%= name %></h1>
+<% for (var i of comment) { %>
+<hr>
+<h4 class="text-primary"><%= i.user %>:</h4>
+<p class="text-primary"><%= i.body %></p>
+<% } %>
 </div>
 
-<p style="text-align:right;">Last updated: <%= time %></p>
+<h2> Leave your comment here: </h2>
+<form>
+	<input type="text" id="c">
+	<button type="button" class="btn btn-primary" onclick="putcom()">Send</button>
+</form>
+
 </div>
 
 
