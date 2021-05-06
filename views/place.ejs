@@ -53,9 +53,10 @@
 			if(!("<%= res[6] %>" == "")){
 				document.getElementById("ta").innerHTML= "<%=res[6] %>";
 				document.getElementById("tb").innerHTML= "<%=res[7] %>";
-				document.getElementById("tc").innerHTML= "<%=res[8] %>";
-				document.getElementById("tc").style.color = "<%=res[8] %>";
+				document.getElementById("tf").innerHTML= "<%=res[8] %>";
+				document.getElementById("tf").style.color = "<%=res[8] %>";
 			}
+			else document.getElementById("tc").style.display = "none";
     		
     	}
     	function addfav() {
@@ -115,15 +116,15 @@
 
 	<h3><%= res[0] %></h3>
 	<h3><%= res[1] %></h3>
-	<h3>The color code is <span id="td"><%= res[2] %></span></h3>
+	<h3>The color code is <span id="td"><%= res[2] %></span>.</h3>
 	<br>
 	<h3><%= res[3] %></h3>
 	<h3><%= res[4] %></h3>
-	<h3>The color code is <span id="te"><%= res[5] %></span></h3>
+	<h3>The color code is <span id="te"><%= res[5] %></span>.</h3>
 	<br>
 	<h3 id="ta"></h3>
 	<h3 id="tb"></h3>
-	<h3>The color code is <span id="tc"></span></h3>
+	<h3 id="tc">The color code is <span id="tf"></span>.</h3>
 	<hr>
 	<h2>We advise you to choose <%= advice %>, the travel time is only <%= fastest %> minutes!</h2>
 	<p style="text-align:right;">Last updated: <%= time %></p>
