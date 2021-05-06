@@ -34,17 +34,27 @@
     	function initfav(){
     		if("<%= fa %>"==="true"){
     			var btn = document.createElement("BUTTON");
-    			btn.innerHTML = "Rem fav";
+    			btn.innerHTML = "Remove from favourite";
     			btn.setAttribute("class","btn btn-primary");
 				document.querySelector("#f").appendChild(btn);
 				btn.setAttribute("onclick", "remfav();");
 			}
 			else{
 				var btn = document.createElement("BUTTON");
-    			btn.innerHTML = "Add fav";
+    			btn.innerHTML = "Add to favourite";
     			btn.setAttribute("class","btn btn-primary");
 				document.querySelector("#f").appendChild(btn);
 				btn.setAttribute("onclick", "addfav();");
+			}
+
+			document.getElementById("td").style.color = "<%=res[2] %>";
+			document.getElementById("te").style.color = "<%=res[5] %>";
+
+			if(!("<%= res[6] %>" == "")){
+				document.getElementById("ta").innerHTML= "<%=res[6] %>";
+				document.getElementById("tb").innerHTML= "<%=res[7] %>";
+				document.getElementById("tc").innerHTML= "<%=res[8] %>";
+				document.getElementById("tc").style.color = "<%=res[8] %>";
 			}
     		
     	}
@@ -99,19 +109,21 @@
 </div>
 <div id="map"></div>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=initMap&libraries=&v=weekly"async></script>
-<h3>There are <%= num %> destination.</h3> 
+<h3>There are <%= num %> destination.</h3>
+<br>
 <div>
+
 	<h3><%= res[0] %></h3>
 	<h3><%= res[1] %></h3>
-	<h3><%= res[2] %></h3>
+	<h3>The color code is <span id="td"><%= res[2] %></span></h3>
 	<br>
 	<h3><%= res[3] %></h3>
 	<h3><%= res[4] %></h3>
-	<h3><%= res[5] %></h3>
+	<h3>The color code is <span id="te"><%= res[5] %></span></h3>
 	<br>
-	<h3><%= res[6] %></h3>
-	<h3><%= res[7] %></h3>
-	<h3><%= res[8] %></h3>
+	<h3 id="ta"></h3>
+	<h3 id="tb"></h3>
+	<h3>The color code is <span id="tc"></span></h3>
 	<hr>
 	<h2>We advise you to choose <%= advice %>, the travel time is only <%= fastest %> minutes!</h2>
 	<p style="text-align:right;">Last updated: <%= time %></p>
@@ -128,7 +140,7 @@
 <h2> Leave your comment here: </h2>
 <form>
 	<textarea class="form-control" id="c" rows="3" placeholder="Comment here"></textarea>
-	<button type="button" class="btn btn-primary" onclick="putcom()">Send</button>
+	<button type="button" class="btn btn-danger" onclick="putcom()">Send</button>
 </form>
 </div>
 </div>

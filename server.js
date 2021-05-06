@@ -175,7 +175,7 @@ app.get("/place/:id", authenticateUser, (req, res) => {
     		var j = 0;
 			var fastest = 1000;
 			var advice = -1;
-			var ret_data = ["","","","","",""];
+			var ret_data = [];
     		for(i=0;i<35;i++){
 	    		if(result[i]['elements'][0]['elements'][0]['text'] === l.id){
 	    			j++;
@@ -188,7 +188,7 @@ app.get("/place/:id", authenticateUser, (req, res) => {
 	    				}
 	    			}
 	    			else ret_data[3*j-2] = "Traffic congestion!";
-	    			ret_data[3*j-1] = "The color code is " + COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']];
+	    			ret_data[3*j-1] = COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']];
 	    		}
 	    	}
 	    	User.findOne({username:req.session.user.username},function(error,u){
@@ -409,6 +409,36 @@ app.put('/putloc/:id', function(req, res){
 	);
 });
 
-const server = app.listen(2073);
-// server config
+app.get('/fast/:id',function(req,res){
+	Loc.findOne({id: req.params['id']}, function(err, l){
+		if(err){
+			res.send(err);
+			return;
+		}
+		fetch(url)
+  		.then(resp => resp.text())
+    	.then(json => convert.xml2js(json,{ignoreDeclaration: true}))
+    	.then(data => data['elements'][0]['elements'])
+    	.then(result => {
+    		var j = 0;
+			var fastest = 1000;
+			var advice = -1;
+    		for(i=0;i<35;i++){
+	    		if(result[i]['elements'][0]['elements'][0]['text'] === l.id){
+	    			j++;
+	    			if(result[i]['elements'][3]['elements'][0]['text'] === "1"){
+	    				if(parseInt(result[i]['elements'][4]['elements'][0]['text'])<fastest){
+	    					fastest = parseInt(result[i]['elements'][4]['elements'][0]['text']);
+	    					advice = i;
+	    				}
+	    			}
+	    		}
+	    	}
+	    	res.send({fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']], name:l.name});
+	    });
+	});
+});
 
+
+// server config
+const server = app.listen(2073);
