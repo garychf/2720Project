@@ -31,11 +31,54 @@
 	      .then((response)=>location.reload());
 	      }
     	}
+    	function initfav(){
+    		if("<%= fa %>"==="true"){
+    			var btn = document.createElement("BUTTON");
+    			btn.innerHTML = "Rem fav";
+    			btn.setAttribute("class","btn btn-primary");
+				document.querySelector("#f").appendChild(btn);
+				btn.setAttribute("onclick", "remfav();");
+			}
+			else{
+				var btn = document.createElement("BUTTON");
+    			btn.innerHTML = "Add fav";
+    			btn.setAttribute("class","btn btn-primary");
+				document.querySelector("#f").appendChild(btn);
+				btn.setAttribute("onclick", "addfav();");
+			}
+    		
+    	}
+    	function addfav() {
+    		var data = {
+	          user : "<%= user.username %>",
+	          id : "<%= id %>"
+	        };
+	      fetch('http://csci2720-g73.cse.cuhk.edu.hk/fav',
+		      { mode: 'cors',
+		      method: 'POST',
+		      headers: {'Content-Type': 'application/json'},
+		      body: JSON.stringify(data)
+		      })
+	      .then((response)=>location.reload());
+		}
+		function remfav() {
+    		var data = {
+	          user : "<%= user.username %>",
+	          id : "<%= id %>"
+	        };
+	      fetch('http://csci2720-g73.cse.cuhk.edu.hk/remfav',
+		      { mode: 'cors',
+		      method: 'PUT',
+		      headers: {'Content-Type': 'application/json'},
+		      body: JSON.stringify(data)
+		      })
+	      .then((response)=>location.reload());
+		}
 	</script>
 
 </head>
 
-<body style="font-family:'Economica', sans-serif">
+<body style="font-family:'Economica', sans-serif" onload="initfav();">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top my-sm-3">
 		<ul class="navbar-nav">
@@ -51,6 +94,9 @@
 
 <div class="container">
  <h5 class="display-4 text-danger"><%= name %></h5>
+<div id="f">
+
+</div>
 <div id="map"></div>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=initMap&libraries=&v=weekly"async></script>
 <h3>There are <%= num %> destination.</h3> 
@@ -77,14 +123,14 @@
 <h4 class="text-primary"><%= i.user %>:</h4>
 <p class="text-primary"><%= i.body %></p>
 <% } %>
-</div>
+
 
 <h2> Leave your comment here: </h2>
 <form>
-	<input type="text" id="c">
+	<textarea class="form-control" id="c" rows="3" placeholder="Comment here"></textarea>
 	<button type="button" class="btn btn-primary" onclick="putcom()">Send</button>
 </form>
-
+</div>
 </div>
 
 

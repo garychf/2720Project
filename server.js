@@ -144,7 +144,14 @@ app.get("/", (req, res) => {
   });
   
 app.get("/fav", authenticateUser, (req, res) => {
-    res.render("favPlace",{ user: req.session.user });
+	User.findOne({username:req.session.user.username},function(error,u){
+		if(error){
+			res.send(error);
+			return;
+		}
+		console.log(u.fav);
+		res.render("favPlace", { user: req.session.user ,fa: u.fav});
+	});
 });
 
 app.get("/home", authenticateUser, (req, res) => {
@@ -158,7 +165,7 @@ app.get("/place/:id", authenticateUser, (req, res) => {
 			res.send(err);
 			return;
 		}
-		if (l==null) {res.send("The place is empty."); return;}
+		if (l==null) {return;}
 		fetch(url)
   		.then(resp => resp.text())
     	.then(json => convert.xml2js(json,{ignoreDeclaration: true}))
@@ -183,8 +190,17 @@ app.get("/place/:id", authenticateUser, (req, res) => {
 	    			ret_data[3*j-1] = "The color code is " + COLOUR_ID[result[i]['elements'][5]['elements'][0]['text']];
 	    		}
 	    	}
-
-			res.render("place", { user: req.session.user , id:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']] ,comment:l.comment});
+	    	User.findOne({username:req.session.user.username},function(error,u){
+	    		if(error){
+					res.send(error);
+					return;
+				}
+				var fa = false;
+				for(item in u.fav)
+					if(l.id === u.fav[item]["place"])
+						fa=true;
+				res.render("place", { user: req.session.user , id:req.params['id'], name:l.name, latitude:l.latitude, longitude:l.longitude, res: ret_data, num: j, time: result[0]['elements'][2]['elements'][0]['text'] , fastest:fastest, advice: DESTINATION_ID[result[advice]['elements'][1]['elements'][0]['text']] ,comment:l.comment , fa:fa});
+	    	});
     	});
 	});
 });
@@ -337,6 +353,36 @@ app.delete('/user', function(req, res){
 	});
 });
 
+app.post('/fav', function(req, res){
+	User.update(
+	    {username: req.body['user']}, 
+	    { $push: { fav: {place : req.body['id']} } },
+	    function (error, success) {
+	        if (error) {
+	            res.send(error);
+	        } else {
+	            res.send(success);
+	        }
+    	}
+	);
+});
+
+app.put('/remfav', function(req, res){
+	User.update(
+	    {username: req.body['user']}, 
+	    { $pull: { fav: {place: req.body['id']} } },
+	    function (error, success) {
+	        if (error) {
+	            res.send(error);
+	        } else {
+	            res.send(success);
+	        }
+    	}
+	);
+
+
+});
+
 app.put('/putloc/:id', function(req, res){
 	var newcom = { user: req.body['user'], body: req.body['body'] };
 	Loc.update(
@@ -344,9 +390,9 @@ app.put('/putloc/:id', function(req, res){
 	    { $push: { comment: newcom } },
 	    function (error, success) {
 	        if (error) {
-	            res.send(error);
+	            console.log(error);
 	        } else {
-	            res.send(success);
+	            console.log(success);
 	        }
     	}
 	);
