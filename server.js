@@ -115,7 +115,7 @@ const DESTINATION_ID={
 	"WH": "Western Harbour Crossing",
 	"LRT": "Lion Rock Tunnel",
 	"SMT": "Shing Mun Tunnel",
-	"TCT": "Tate's Cairn Tunnel",
+	"TCT": "Tates Cairn Tunnel",
 	"TKTL": "Ting Kau, via Tai Lam Tunnel",
 	"TKTM": "Ting Kau, via Tuen Mun Road",
 	"TSCA": "Tsing Sha Control Area",
@@ -155,8 +155,8 @@ app.get("/fav", authenticateUser, (req, res) => {
 });
 
 app.get("/home", authenticateUser, (req, res) => {
-    Loc.find().toArray(function(err, list) {
-    res.render("home", { user: req.session.user, info:list})})
+    Loc.find({},function(err, list) {
+    res.render("home", { user: req.session.user, info:list})});
 });
 
 //single place page
@@ -401,9 +401,9 @@ app.put('/putloc/:id', function(req, res){
 	    { $push: { comment: newcom } },
 	    function (error, success) {
 	        if (error) {
-	            console.log(error);
+	            res.send(error);
 	        } else {
-	            console.log(success);
+	            res.send(success);
 	        }
     	}
 	);
@@ -552,7 +552,7 @@ app.get('/chart/:id', authenticateUser,function(req,res){
 									    		ret[1]=ret[1].reverse();
 									    		ret[2]=ret[2].reverse();
 									    		t=t.reverse();
-										  		res.render("chart", { user: req.session.user, ret:ret, name:name, me:l.name, time:t});
+										  		res.render("chart", { user: req.session.user, ret:ret, name:name, me:l.name, time:t,id:l.id});
 											});
 										});	
 									});
@@ -565,5 +565,104 @@ app.get('/chart/:id', authenticateUser,function(req,res){
 		});
 	});
 });
+
+//chart for 7 days
+app.get('/chart2/:id', authenticateUser,function(req,res){
+	Loc.findOne({id: req.params['id']}, function(err, l){
+		if(err){
+			res.send(err);
+			return;
+		}
+		var ret=[[],[],[]]
+		var name=[];
+		var index=[];
+		var t=[];
+		var j=0;
+		var h = 24*60*60*1000;
+		var time = new Date(Date.now());
+		var year = time.getFullYear().toString();
+		var month = (time.getMonth()+1).toString();
+		if(month.length===1){month="0"+month}
+		var date = time.getDate().toString();
+		if(date.length===1){date="0"+date}
+		var hour = time.getHours().toString();
+		if(hour.length===1){hour="0"+hour}
+		var min = time.getMinutes().toString();
+		if(min.length===1){min="0"+min}
+		fetch(url).then(resp => resp.text()).then(json => convert.xml2js(json,{ignoreDeclaration: true})).then(data => data['elements'][0]['elements']).then(result => {
+		  	t[0]=month+date;
+		  	for(i=0;i<35;i++){
+		    		if(result[i]['elements'][0]['elements'][0]['text'] === l.id){
+		    			index[j]=i;
+		    			name[j]=DESTINATION_ID[result[i]['elements'][1]['elements'][0]['text']];
+		    			if(result[i]['elements'][3]['elements'][0]['text'] === "1")
+		    				ret[j][0]=parseInt(result[i]['elements'][4]['elements'][0]['text']);
+		    			else ret[j][0] = 0;
+		    			j++;
+		    		}
+		    }
+		    fetch(url2+year+month+date+"-"+hour+min).then(resp2 => resp2.text()).then(json2 => convert.xml2js(json2,{ignoreDeclaration: true})).then(data2 => data2['elements'][0]['elements']).then(result2 => {
+			    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}
+			    t[1]=month+date;
+			    for(i=0;i<index.length;i++){
+		    		if(result2[i]['elements'][3]['elements'][0]['text'] === "1")
+		    			ret[i][1]=parseInt(result2[index[i]]['elements'][4]['elements'][0]['text']);
+		    		else ret[i][1] = 0;
+		    	}
+		    	fetch(url2+year+month+date+"-"+hour+min).then(resp3 => resp3.text()).then(json3 => convert.xml2js(json3,{ignoreDeclaration: true})).then(data3 => data3['elements'][0]['elements']).then(result3 => {
+				    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}
+				    t[2]=month+date;
+				    for(i=0;i<index.length;i++){
+			    		if(result3[i]['elements'][3]['elements'][0]['text'] === "1")
+			    			ret[i][2]=parseInt(result3[index[i]]['elements'][4]['elements'][0]['text']);
+			    		else ret[i][2] = 0;
+			    	}
+			    	fetch(url2+year+month+date+"-"+hour+min).then(resp4 => resp4.text()).then(json4 => convert.xml2js(json4,{ignoreDeclaration: true})).then(data4 => data4['elements'][0]['elements']).then(result4 => {
+				    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}
+				    	t[3]=month+date;
+				    	for(i=0;i<index.length;i++){
+				    		if(result4[i]['elements'][3]['elements'][0]['text'] === "1")
+				    			ret[i][3]=parseInt(result4[index[i]]['elements'][4]['elements'][0]['text']);
+				    		else ret[i][3] = 0;
+				    	}
+				    	fetch(url2+year+month+date+"-"+hour+min).then(resp5 => resp5.text()).then(json5 => convert.xml2js(json5,{ignoreDeclaration: true})).then(data5 => data5['elements'][0]['elements']).then(result5 => {
+					    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}
+					    	t[4]=month+date;
+					    	for(i=0;i<index.length;i++){
+					    		if(result5[i]['elements'][3]['elements'][0]['text'] === "1")
+					    			ret[i][4]=parseInt(result5[index[i]]['elements'][4]['elements'][0]['text']);
+					    		else ret[i][4] = 0;
+					    	}
+					    	fetch(url2+year+month+date+"-"+hour+min).then(resp6 => resp6.text()).then(json6 => convert.xml2js(json6,{ignoreDeclaration: true})).then(data6 => data6['elements'][0]['elements']).then(result6 => {
+						    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}
+						    	t[5]=month+date;
+						    	for(i=0;i<index.length;i++){
+						    		if(result6[i]['elements'][3]['elements'][0]['text'] === "1")
+						    			ret[i][5]=parseInt(result6[index[i]]['elements'][4]['elements'][0]['text']);
+						    		else ret[i][5] = 0;
+						    	}
+						    	fetch(url2+year+month+date+"-"+hour+min).then(resp7 => resp7.text()).then(json7 => convert.xml2js(json7,{ignoreDeclaration: true})).then(data7 => data7['elements'][0]['elements']).then(result7 => {
+							    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}
+							    	t[6]=month+date;
+							    	for(i=0;i<index.length;i++){
+							    		if(result7[i]['elements'][3]['elements'][0]['text'] === "1")
+							    			ret[i][6]=parseInt(result7[index[i]]['elements'][4]['elements'][0]['text']);
+							    		else ret[i][6] = 0;
+							    	}
+							    	ret[0]=ret[0].reverse();
+									ret[1]=ret[1].reverse();
+						    		ret[2]=ret[2].reverse();
+									t=t.reverse();
+							    	res.render("chart2", { user: req.session.user, ret:ret, name:name, me:l.name, time:t,id:l.id});
+							    });
+						    });
+					    });
+				    });
+		    	});
+		    });
+		});
+	});
+});
+
 // server config
 const server = app.listen(2073);

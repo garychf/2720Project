@@ -32,17 +32,18 @@
 	      }
     	}
     	function initfav(){
+    		document.getElementById("chart").setAttribute("href","/chart/"+"<%= id %>");
     		if("<%= fa %>"==="true"){
     			var btn = document.createElement("BUTTON");
     			btn.innerHTML = "Remove from favourite";
-    			btn.setAttribute("class","btn btn-primary");
+    			btn.setAttribute("class","btn btn-danger");
 				document.querySelector("#f").appendChild(btn);
 				btn.setAttribute("onclick", "remfav();");
 			}
 			else{
 				var btn = document.createElement("BUTTON");
     			btn.innerHTML = "Add to favourite";
-    			btn.setAttribute("class","btn btn-primary");
+    			btn.setAttribute("class","btn btn-danger");
 				document.querySelector("#f").appendChild(btn);
 				btn.setAttribute("onclick", "addfav();");
 			}
@@ -105,8 +106,9 @@
 
 <div class="container">
  <h5 class="display-4 text-danger"><%= name %></h5>
-<div id="f">
-
+<div class="d-flex justify-content-center" id="f">
+<a id="chart"><button type="button" class="btn btn-primary text-center">Chart</button></a>
+&nbsp;&nbsp;
 </div>
 <div id="map"></div>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=initMap&libraries=&v=weekly"async></script>

@@ -27,7 +27,7 @@
 	<div class="d-flex justify-content-center">
 		<a id="back"><button type="button" class="btn btn-primary text-center">Back</button></a>
 		&nbsp;&nbsp;
-		<a id="past"><button type="button" class="btn btn-danger text-center">Past 7 days</button></a>
+		<a id="past"><button type="button" class="btn btn-danger text-center" >Past 10 hours</button></a>
 	</div>
 
 
@@ -35,9 +35,9 @@
 </div>
 <script>
 document.getElementById("back").setAttribute("href","/place/"+"<%= id %>");
-document.getElementById("past").setAttribute("href","/chart2/"+"<%= id %>");
+document.getElementById("past").setAttribute("href","/chart/"+"<%= id %>");
 var ctx = document.getElementById('hours').getContext('2d');
-const labels = ["<%= time[0] %>","<%= time[1] %>","<%= time[2] %>","<%= time[3] %>","<%= time[4] %>","<%= time[5] %>","<%= time[6] %>","<%= time[7] %>","<%= time[8] %>","<%= time[9] %>"];
+const labels = ["<%= time[0] %>","<%= time[1] %>","<%= time[2] %>","<%= time[3] %>","<%= time[4] %>","<%= time[5] %>","<%= time[6] %>"];
 var data={};
 if("<%= name.length %>"==="2"){
   data ={
@@ -95,7 +95,7 @@ var myChart = new Chart(ctx, {
       },
       title: {
         display: true,
-        text: 'Waiting time for <%= me %> in the past 10 hours'
+        text: 'Waiting time for <%= me %> in the past 7 days'
       }
     }
   },
