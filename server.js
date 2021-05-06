@@ -55,7 +55,7 @@ var authenticateUser = (req, res, next) => {
 
 
 const url = 'https://resource.data.one.gov.hk/td/journeytime.xml';
-
+const url2 = 'https://api.data.gov.hk/v1/historical-archive/get-file?url=https%3A%2F%2Fresource.data.one.gov.hk%2Ftd%2Fjourneytime.xml&time=';
 const LOCATION_ID={
 	"H1": "Gloucester Road eastbound near the Revenue Tower",
 	"H2": "Canal Road Flyover northbound near exit of Aberdeen Tunnel",
@@ -68,7 +68,7 @@ const LOCATION_ID={
 	"K05": "Kai Fuk Road northbound near the petrol stations",
 	"K06": "Chatham Road North southbound near Fat Kwong Street Playground",
 	"SJ1": "Tai Po Road – Sha Tin near the Racecourse",
-	"SJ2": "Tate’s Cairn Highway near Shek Mun",
+	"SJ2": "Tates Cairn Highway near Shek Mun",
 	"SJ3": "Tolo Highway near Science Park",
 	"SJ4": "San Tin Highway near Pok Wai Road",
 	"SJ5": "Tuen Mun Road near Tuen Mun Heung Sze Wui Road"
@@ -409,6 +409,7 @@ app.put('/putloc/:id', function(req, res){
 	);
 });
 
+//display info for favourite page
 app.get('/fast/:id',function(req,res){
 	Loc.findOne({id: req.params['id']}, function(err, l){
 		if(err){
@@ -439,6 +440,130 @@ app.get('/fast/:id',function(req,res){
 	});
 });
 
+//chart for 10 hours
+app.get('/chart/:id', authenticateUser,function(req,res){
+	Loc.findOne({id: req.params['id']}, function(err, l){
+		if(err){
+			res.send(err);
+			return;
+		}
+		var ret=[[],[],[]]
+		var name=[];
+		var index=[];
+		var t=[];
+		var j=0;
+		var h = 60*60*1000;
+		var time = new Date(Date.now());
+		var year = time.getFullYear().toString();
+	  	var month = (time.getMonth()+1).toString();
+	  	if(month.length===1){month="0"+month}
+	  	var date = time.getDate().toString();
+	  	if(date.length===1){date="0"+date}
+	  	var hour = time.getHours().toString();
+	  	if(hour.length===1){hour="0"+hour}
+	  	var min = time.getMinutes().toString();
+	  	if(min.length===1){min="0"+min}
+		fetch(url).then(resp => resp.text()).then(json => convert.xml2js(json,{ignoreDeclaration: true})).then(data => data['elements'][0]['elements']).then(result => {
+	  		t[0]=hour+min;
+	  		for(i=0;i<35;i++){
+	    		if(result[i]['elements'][0]['elements'][0]['text'] === l.id){
+	    			index[j]=i;
+	    			name[j]=DESTINATION_ID[result[i]['elements'][1]['elements'][0]['text']];
+	    			if(result[i]['elements'][3]['elements'][0]['text'] === "1")
+	    				ret[j][0]=parseInt(result[i]['elements'][4]['elements'][0]['text']);
+	    			else ret[j][0] = 0;
+	    			j++;
+	    		}
+	    	}
+	  		fetch(url2+year+month+date+"-"+hour+min).then(resp2 => resp2.text()).then(json2 => convert.xml2js(json2,{ignoreDeclaration: true})).then(data2 => data2['elements'][0]['elements']).then(result2 => {
+		    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+		    	t[1]=hour+min;
 
+		    	for(i=0;i<index.length;i++){
+	    			if(result2[i]['elements'][3]['elements'][0]['text'] === "1")
+	    				ret[i][1]=parseInt(result2[index[i]]['elements'][4]['elements'][0]['text']);
+	    			else ret[i][1] = 0;
+	    		}
+		  		fetch(url2+year+month+date+"-"+hour+min).then(resp3 => resp3.text()).then(json3 => convert.xml2js(json3,{ignoreDeclaration: true})).then(data3 => data3['elements'][0]['elements']).then(result3 => {
+			    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+			  		t[2]=hour+min;
+			  		for(i=0;i<index.length;i++){
+		    			if(result3[i]['elements'][3]['elements'][0]['text'] === "1")
+		    				ret[i][2]=parseInt(result3[index[i]]['elements'][4]['elements'][0]['text']);
+		    			else ret[j][2] = 0;
+		    		}
+			  		fetch(url2+year+month+date+"-"+hour+min).then(resp4 => resp4.text()).then(json4 => convert.xml2js(json4,{ignoreDeclaration: true})).then(data4 => data4['elements'][0]['elements']).then(result4 => {
+					    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+					    t[3]=hour+min;
+					    for(i=0;i<index.length;i++){
+			    			if(result4[i]['elements'][3]['elements'][0]['text'] === "1")
+			    				ret[i][3]=parseInt(result4[index[i]]['elements'][4]['elements'][0]['text']);
+			    			else ret[j][3] = 0;
+			    		}
+					  	fetch(url2+year+month+date+"-"+hour+min).then(resp5 => resp5.text()).then(json5 => convert.xml2js(json5,{ignoreDeclaration: true})).then(data5 => data5['elements'][0]['elements']).then(result5 => {
+						    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+						    t[4]=hour+min;
+						    for(i=0;i<index.length;i++){
+				    			if(result5[i]['elements'][3]['elements'][0]['text'] === "1")
+				    				ret[i][4]=parseInt(result5[index[i]]['elements'][4]['elements'][0]['text']);
+				    			else ret[j][4] = 0;
+				    		}
+						  	fetch(url2+year+month+date+"-"+hour+min).then(resp6 => resp6.text()).then(json6 => convert.xml2js(json6,{ignoreDeclaration: true})).then(data6 => data6['elements'][0]['elements']).then(result6 => {
+							    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+							    t[5]=hour+min;
+							    for(i=0;i<index.length;i++){
+					    			if(result6[i]['elements'][3]['elements'][0]['text'] === "1")
+					    				ret[i][5]=parseInt(result6[index[i]]['elements'][4]['elements'][0]['text']);
+					    			else ret[j][5] = 0;
+					    		}
+						  		fetch(url2+year+month+date+"-"+hour+min).then(resp7 => resp7.text()).then(json7 => convert.xml2js(json7,{ignoreDeclaration: true})).then(data7 => data7['elements'][0]['elements']).then(result7 => {
+								    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+								    t[6]=hour+min;
+								    for(i=0;i<index.length;i++){
+						    			if(result7[i]['elements'][3]['elements'][0]['text'] === "1")
+						    				ret[i][6]=parseInt(result7[index[i]]['elements'][4]['elements'][0]['text']);
+						    			else ret[j][6] = 0;
+						    		}
+								  	fetch(url2+year+month+date+"-"+hour+min).then(resp8 => resp8.text()).then(json8 => convert.xml2js(json8,{ignoreDeclaration: true})).then(data8 => data8['elements'][0]['elements']).then(result8 => {
+									    time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+									  	t[7]=hour+min;
+									  	for(i=0;i<index.length;i++){
+							    			if(result8[i]['elements'][3]['elements'][0]['text'] === "1")
+							    				ret[i][7]=parseInt(result8[index[i]]['elements'][4]['elements'][0]['text']);
+							    			else ret[j][7] = 0;
+							    		}
+									  	fetch(url2+year+month+date+"-"+hour+min).then(resp9 => resp9.text()).then(json9 => convert.xml2js(json9,{ignoreDeclaration: true})).then(data9 => data9['elements'][0]['elements']).then(result9 => {
+									    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+									    	t[8]=hour+min;
+									    	for(i=0;i<index.length;i++){
+								    			if(result9[i]['elements'][3]['elements'][0]['text'] === "1")
+								    				ret[i][8]=parseInt(result9[index[i]]['elements'][4]['elements'][0]['text']);
+								    			else ret[j][8] = 0;
+								    		}
+									  		fetch(url2+year+month+date+"-"+hour+min).then(resp10 => resp10.text()).then(json10 => convert.xml2js(json10,{ignoreDeclaration: true})).then(data10 => data10['elements'][0]['elements']).then(result10 => {
+										    	time = new Date(time-h);year = time.getFullYear().toString();month = (time.getMonth()+1).toString();if(month.length===1){month="0"+month}date = time.getDate().toString();if(date.length===1){date="0"+date}hour = time.getHours().toString();if(hour.length===1){hour="0"+hour}
+										    	t[9]=hour+min;
+										    	for(i=0;i<index.length;i++){
+									    			if(result10[i]['elements'][3]['elements'][0]['text'] === "1")
+									    				ret[i][9]=parseInt(result10[index[i]]['elements'][4]['elements'][0]['text']);
+									    			else ret[j][9] = 0;
+									    		}
+									    		ret[0]=ret[0].reverse();
+									    		ret[1]=ret[1].reverse();
+									    		ret[2]=ret[2].reverse();
+									    		t=t.reverse();
+										  		res.render("chart", { user: req.session.user, ret:ret, name:name, me:l.name, time:t});
+											});
+										});	
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+});
 // server config
 const server = app.listen(2073);
