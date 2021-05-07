@@ -155,8 +155,10 @@ app.get("/fav", authenticateUser, (req, res) => {
 });
 
 app.get("/home", authenticateUser, (req, res) => {
+	if(req.session.user.username==="admin")
+		res.render("admin", { user: req.session.user});
     Loc.find({},function(err, list) {
-    res.render("home", { user: req.session.user, info:list});
+    	res.render("home", { user: req.session.user, info:list});
     });
 });
 
@@ -266,48 +268,95 @@ app.post('/loc', function(req, res){
 	var l = new Loc ({id: req.body['id'], name: req.body['name'], latitude: req.body['latitude'], longitude: req.body['longitude']});
 	l.save(function(err){
 		if (err){
-			res.send(err);
+			res.send("Location cannot be created, please check the input again!");
 			return;
 		}
-		res.send(l);
+		res.send("Location with ID "+l.id+", name "+l.name+", latitude "+l.latitude+" and longitude "+l.longitude+" created.");
+	});
+});
+
+//read all user loc from db
+app.get('/loc',function(req,res){
+	Loc.find({})
+	.exec(function(err,l){
+		if (err) {res.send(err); return;}
+		if(l.length==0){
+	      res.send("There are no location!");
+	      return;
+    	}
+    	var num = 0;
+	    var response="";
+	    while(num < l.length){
+	    	num +=1;
+	      	response = response +"Location "+num +" id : "+l[num-1].id+"<br>";
+	    }
+	    res.send(response);
 	});
 });
 
 //read loc from db
-app.get('/loc', function(req, res){
-	Loc.findOne({id: req.body['id']}, function(err, l){
+app.get('/loc/:id', function(req, res){
+	Loc.findOne({id: req.params['id']}, function(err, l){
 		if(err){
-			res.send(err);
+			res.send("Fail to read.");
 			return;
 		}
-		res.send("Location ID: " + l.id + "<br>\n" + "Loaction Name: " + l.name + "<br>\n" + "Latitude: " + l.latitude + "<br>\n" + "Longitude: " + l.longitude + "Ref: " + l);
+		if(l===null){
+			res.send("There is no such a location.");
+			return;
+		}
+		res.send("The Location ID is "+l.id+", name is "+l.name+", latitude is "+l.latitude+" and longitude is "+l.longitude+".");
 	});
 });
 
-//edit loc from db
+//initial check for edit loc
 app.put('/loc', function(req, res){
 	Loc.findOne({id: req.body['id']} , 
 		function(err, l){
 			if (err){
-				res.send(err);
+				res.json({init:false});
+				return;
+			}
+			if (l===null){
+				res.json({init:false});
+				return;
+			}
+			res.json({init:true,name:l.name,lat:l.latitude,lon:l.longitude});
+		});
+});
+
+//edit loc from db
+app.put('/loc/:id', function(req, res){
+	Loc.findOne({id: req.params['id']} , 
+		function(err, l){
+			if (err){
+				res.json({init:false});
+				return;
+			}
+			if (l===null){
+				res.json({init:false});
 				return;
 			}
 			l.name = req.body['name'];
 			l.latitude = req.body['latitude'];
 			l.longitude = req.body['longitude'];
 			l.save();
-			res.send(l);
+			res.json({init:true,name:l.name,lat:l.latitude,lon:l.longitude});
 		});
 });
 
 //delete loc from db
 app.delete('/loc', function(req, res){
-	Loc.findOne({id: req.body['id']}, 'id name latitude longitude', function(err, l){
+	Loc.findOne({id: req.body['id']}, function(err, l){
 		if(err){
-			res.send(err);
+			res.send("Fail to delete.");
 			return;
 		}
-		res.send("Location ID: " + l.id + "<br>\n" + "Loaction Name: " + l.name + "<br>\n" + "Latitude: " + l.latitude + "<br>\n" + "Longitude: " + l.longitude + "<br>\n" + "is successfully deleted." + "<br>\n" + "Ref: " + l);
+		if(l===null){
+			res.send("There is no such a location.");
+			return;
+		}
+		res.send("Location with ID "+l.id+", name "+l.name+", latitude "+l.latitude+" and longitude "+l.longitude+" deleted.");
 		l.remove();
 	});
 });
@@ -317,47 +366,93 @@ app.post('/user', function(req, res){
 	var u = new User ({username: req.body['username'], password: req.body['password']});
 	u.save(function(err){
 		if (err){
-			res.send(err);
+			res.send("User cannot be created, please check the input again!");
 			return;
 		}
-		res.send(u);
+		res.send("User with username "+u.username+" and password "+u.password+" is created.");
+	});
+});
+
+//read all user from db
+app.get('/user', function(req, res){
+	User.find({})
+	.exec(function(err,u){
+		if (err) {res.send(err); return;}
+		if(u.length==0){
+	      res.send("There are no user!");
+	      return;
+    	}
+    	var num = 0;
+	    var response="";
+	    while(num < u.length){
+	    	num +=1;
+	      	response = response +"User "+num +" username : "+u[num-1].username+"<br>";
+	    }
+	    res.send(response);
 	});
 });
 
 //read user from db
-app.get('/user', function(req, res){
-	User.findOne({username: req.body['username']},function(err, u){
+app.get('/user/:username', function(req, res){
+	User.findOne({username: req.params['username']}, function(err, u){
 		if(err){
-			res.send(err);
+			res.send("Fail to read.");
 			return;
 		}
-		res.send("Username: " + u.username + "<br>\n" + "Password" + u.password + "<br>\n" + "Favourite Place" + u.fav + "Ref: " + u);
+		if(u===null){
+			res.send("There is no such a user.");
+			return;
+		}
+		res.send("The User username is "+u.username+" and password is "+u.password+".");
 	});
 });
 
-//edit user from db
+//initial check for edit user
 app.put('/user', function(req, res){
-	User.findOne({username: req.body['username']},
-		function(err,u){
-			if(err){
-				res.send(err);
+	User.findOne({username: req.body['username']} , 
+		function(err, u){
+			if (err){
+				res.json({init:false});
 				return;
 			}
-			u.password = req.body['password']; 
-			u.fav = req.body['favPlace'];
+			if (u===null){
+				res.json({init:false});
+				return;
+			}
+			res.json({init:true,username:u.username,password:u.password});
+		});
+});
+
+//edit user from db
+app.put('/user/:username', function(req, res){
+	User.findOne({username: req.params['username']} , 
+		function(err, u){
+			if (err){
+				res.json({init:false});
+				return;
+			}
+			if (u===null){
+				res.json({init:false});
+				return;
+			}
+			u.password = req.body['password'];
 			u.save();
-			res.send(u);
+			res.json({init:true,password:u.password});
 		});
 });
 
 //delete user from db
 app.delete('/user', function(req, res){
-	User.findOne({username: req.body['username']}, 'username password favPlace', function(err, u){
+	User.findOne({username: req.body['username']},function(err, u){
 		if(err){
-			res.send(err);
+			res.send("Fail to delete.");
 			return;
 		}
-		res.send("Username: " + u.username + "<br>\n" + "Password" + u.password + "<br>\n" + "Favourite Place" + u.fav + "<br>\n" + "is successfully deleted." + "<br>\n" + "Ref: " + u);
+		if(u===null){
+			res.send("There is no such a user.");
+			return;
+		}
+		res.send("User with username "+u.username+" and password "+u.password+" deleted.");
 		u.remove();
 	});
 });

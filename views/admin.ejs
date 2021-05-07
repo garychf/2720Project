@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>home</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css?family=Economica" rel="stylesheet">
+  <script>
+  	function loc(){
+  		document.getElementById("loc").style.display="block";
+  		document.getElementById("user").style.display="none";
+  	}
+  	function user(){
+  		document.getElementById("loc").style.display="none";
+  		document.getElementById("user").style.display="block";
+  	}
+  	function cloc(){
+  		document.getElementById("cloc").style.display="block";
+  		document.getElementById("rloc").style.display="none";
+  		document.getElementById("uloc").style.display="none";
+  		document.getElementById("ulocnew2").style.display="none";
+  		document.getElementById("dloc").style.display="none";
+  		document.getElementById('clocnew').innerHTML="";
+  	}
+  	function rloc(){
+  		document.getElementById("cloc").style.display="none";
+  		document.getElementById("rloc").style.display="block";
+  		document.getElementById("uloc").style.display="none";
+  		document.getElementById("ulocnew2").style.display="none";
+  		document.getElementById("dloc").style.display="none";
+  		document.getElementById('rlocnew').innerHTML="";
+  	}
+  	function uloc(){
+  		document.getElementById("cloc").style.display="none";
+  		document.getElementById("rloc").style.display="none";
+  		document.getElementById("uloc").style.display="block";
+  		document.getElementById("ulocnew2").style.display="none";
+  		document.getElementById("dloc").style.display="none";
+  		document.getElementById('ulocnew').innerHTML="";
+  		document.getElementById('ulocnew3').innerHTML="";
+  	}
+  	function dloc(){
+  		document.getElementById("cloc").style.display="none";
+  		document.getElementById("rloc").style.display="none";
+  		document.getElementById("uloc").style.display="none";
+  		document.getElementById("ulocnew2").style.display="none";
+  		document.getElementById("dloc").style.display="block";
+  		document.getElementById('dlocnew').innerHTML="";
+  	}
+  	function cuser(){
+  		document.getElementById("cuser").style.display="block";
+  		document.getElementById("ruser").style.display="none";
+  		document.getElementById("uuser").style.display="none";
+  		document.getElementById("uusernew2").style.display="none";
+  		document.getElementById("duser").style.display="none";
+  		document.getElementById('cusernew').innerHTML="";
+  	}
+  	function ruser(){
+  		document.getElementById("cuser").style.display="none";
+  		document.getElementById("ruser").style.display="block";
+  		document.getElementById("uuser").style.display="none";
+  		document.getElementById("uusernew2").style.display="none";
+  		document.getElementById("duser").style.display="none";
+  		document.getElementById('rusernew').innerHTML="";
+  	}
+  	function uuser(){
+  		document.getElementById("cuser").style.display="none";
+  		document.getElementById("ruser").style.display="none";
+  		document.getElementById("uuser").style.display="block";
+  		document.getElementById("uusernew2").style.display="none";
+  		document.getElementById("duser").style.display="none";
+  		document.getElementById('uusernew').innerHTML="";
+  		document.getElementById('uusernew3').innerHTML="";
+  	}
+  	function duser(){
+  		document.getElementById("cuser").style.display="none";
+  		document.getElementById("ruser").style.display="none";
+  		document.getElementById("uuser").style.display="none";
+  		document.getElementById("uusernew2").style.display="none";
+  		document.getElementById("duser").style.display="block";
+  		document.getElementById('dusernew').innerHTML="";
+  	}
+  	function createPlace(){
+  		var data = {
+  			id: document.getElementById('cli').value,
+  			name: document.getElementById('cln').value,
+  			latitude: document.getElementById('clla').value,
+  			longitude: document.getElementById('cllo').value
+  		};
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/loc',
+	    { mode: 'cors',
+	    method: 'POST',
+	    headers: {'Content-Type': 'application/json'},
+	    body: JSON.stringify(data)
+	    })
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('clocnew').innerHTML=data;
+	    });
+  	}
+  	function readPlace(){
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/loc')
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('rlocnew').innerHTML=data;
+	    });
+  	}
+  	function readPlace2(){
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/loc/'+document.getElementById('rli').value)
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('rlocnew').innerHTML=data;
+	    });
+  	}
+
+  	function updatePlace1(){
+  		var data = {id: document.getElementById('uli').value};
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/loc',
+  		{ mode: 'cors',
+	    method: 'PUT',
+	    headers: {'Content-Type': 'application/json'},
+	    body: JSON.stringify(data)
+	    })
+	    .then((response)=>response.json())
+	    .then((data2)=> {
+		    if(data2.init===true){
+		      	document.getElementById("uloc").style.display="none";
+	  			document.getElementById("ulocnew2").style.display="block";
+	  			document.getElementById("uli2").value= data.id;
+	  			document.getElementById("uln2").value=	data2.name;
+	  			document.getElementById("ulla2").value= data2.lat;
+	  			document.getElementById("ullo2").value=	data2.lon;
+	  		}
+	  		else document.getElementById("ulocnew").innerHTML="There is no such a place.";
+	    });
+  	}
+  	function updatePlace2(){
+  		var p=document.getElementById('uli2').value;
+  		var data = {
+	        name : document.getElementById('uln2').value,
+	        latitude: document.getElementById('ulla2').value,
+	        longitude: document.getElementById('ullo2').value
+  		};
+  		if(p==""||data.name==""||data.latitude==""||data.longitude=="")
+			document.getElementById('ulocnew3').innerHTML="Updated fail. Please check the input again.";
+		else{
+	  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/loc/'+p,
+	  		{ mode: 'cors',
+		    method: 'PUT',
+		    headers: {'Content-Type': 'application/json'},
+		    body: JSON.stringify(data)
+		    })
+		    .then((response)=>response.json())
+		    .then((data2)=> {
+		    	if(data2.init===true){
+		  			document.getElementById("uli2").value= p;
+		  			document.getElementById("uln2").value=	data2.name;
+		  			document.getElementById("ulla2").value= data2.lat;
+		  			document.getElementById("ullo2").value=	data2.lon;
+		  			document.getElementById('ulocnew3').innerHTML="Updated!";
+		  		}
+		  		else {document.getElementById('ulocnew3').innerHTML="Updated fail.";}
+		    });
+		}
+  	}
+  	function deletePlace(){
+  		var data = {
+  			id: document.getElementById('dli').value  			
+  		};
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/loc',
+  		{ mode: 'cors',
+	    method: 'DELETE',
+	    headers: {'Content-Type': 'application/json'},
+	    body: JSON.stringify(data)
+	    })
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('dlocnew').innerHTML=data;
+	    });
+  	}
+
+  	function createUser(){
+  		var data = {
+  			username: document.getElementById('cun').value,
+  			password: document.getElementById('cup').value
+  		};
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/user',
+	    { mode: 'cors',
+	    method: 'POST',
+	    headers: {'Content-Type': 'application/json'},
+	    body: JSON.stringify(data)
+	    })
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('cusernew').innerHTML=data;
+	    });
+  	}
+  	function readUser(){
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/user')
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('rusernew').innerHTML=data;
+	    });
+  	}
+  	function readUser2(){
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/user/'+document.getElementById('run').value)
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('rusernew').innerHTML=data;
+	    });
+  	}
+  	function updateUser1(){
+  		var data = {username: document.getElementById('uun').value};
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/user',
+  		{ mode: 'cors',
+	    method: 'PUT',
+	    headers: {'Content-Type': 'application/json'},
+	    body: JSON.stringify(data)
+	    })
+	    .then((response)=>response.json())
+	    .then((data2)=> {
+		    if(data2.init===true){
+		      	document.getElementById("uuser").style.display="none";
+	  			document.getElementById("uusernew2").style.display="block";
+	  			document.getElementById("uun2").value= data.username;
+	  			document.getElementById("uup2").value=	data2.password;
+	  		}
+	  		else document.getElementById("uusernew").innerHTML="There is no such a user.";
+	    });
+  	}
+  	function updateUser2(){
+  		var p=document.getElementById('uun2').value;
+  		var data = {
+	        password : document.getElementById('uup2').value
+  		};
+  		if(p==""||data.password=="")
+			document.getElementById('uusernew3').innerHTML="Updated fail. Please check the input again.";
+		else{
+	  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/user/'+p,
+	  		{ mode: 'cors',
+		    method: 'PUT',
+		    headers: {'Content-Type': 'application/json'},
+		    body: JSON.stringify(data)
+		    })
+		    .then((response)=>response.json())
+		    .then((data2)=> {
+		    	if(data2.init===true){
+		  			document.getElementById("uun2").value= p;
+		  			document.getElementById("uup2").value=	data2.password;
+		  			document.getElementById('uusernew3').innerHTML="Updated!";
+		  		}
+		  		else {document.getElementById('uusernew3').innerHTML="Updated fail.";}
+		    });
+		}
+  	}
+  	function deleteUser(){
+  		var data = {
+  			username: document.getElementById('dun').value  			
+  		};
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/user',
+  		{ mode: 'cors',
+	    method: 'DELETE',
+	    headers: {'Content-Type': 'application/json'},
+	    body: JSON.stringify(data)
+	    })
+	    .then((response)=>response.text())
+	    .then((data)=> {
+	      document.getElementById('dusernew').innerHTML=data;
+	    });
+  	}
+  </script>
+</head>
+
+<body style="font-family:'Economica', sans-serif" onload="loc();cloc();cuser();">
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top my-sm-3">
+		<ul class="navbar-nav">
+			<li class="nav-item"><a href="/home" class="nav-link">Hello, <%= user.username %></a></li>
+			<li class="nav-item"><a href="/logout" class="nav-link text-danger">Logout</a></li>
+		</ul>
+	</nav>
+
+<div class="container bg-warning">
+  <h4 class="display-4 text-light">Admin page</h4>
+</div>
+
+<nav class="navbar navbar-expand-lg justify-content-center">
+	<button onclick="loc()" class="btn btn-success">Edit Place</button>
+	&nbsp;&nbsp;
+	<button onclick="user()" class="btn btn-success">Edit User</button>
+</nav>
+
+<div id="loc">
+	<div class="container">
+		<nav class="navbar navbar-expand-lg justify-content-center">
+			<button onclick="cloc()" class="btn btn-primary">Create Place</button>
+			&nbsp;&nbsp;
+			<button onclick="rloc()" class="btn btn-primary">Read Place</button>
+			&nbsp;&nbsp;
+			<button onclick="uloc()" class="btn btn-primary">Update Place</button>
+			&nbsp;&nbsp;
+			<button onclick="dloc()" class="btn btn-primary">Delete Place</button>
+		</nav>
+		<div id="cloc" class="display-4">
+			<h2>Create</h2>
+			<div class="form-group">
+				<label for="locid">Location ID:</label>
+				<input type="locid" class="form-control" id="cli" placeholder="Location_ID">
+			</div>
+			<div class="form-group">
+				<label for="locname">Location Name:</label>
+				<input type="locname" class="form-control" id="cln" placeholder="Location_Name">
+			</div>
+			<div class="form-group">
+				<label for="loclat">Location Latitude:</label>
+				<input type="loclat" class="form-control" id="clla" placeholder="Location_Latitude">
+			</div>
+
+			<div class="form-group">
+				<label for="loclong">Location Longitude:</label>
+				<input type="loclong" class="form-control" id="cllo" placeholder="Location_Longitude">
+			</div>
+
+			<button class="d-flex btn btn-primary" style="margin: 5px;" onclick="createPlace();">Create now</button>
+
+			<div id="clocnew">
+			</div>
+		</div>
+
+		
+		<div id="rloc" class="display-4">
+			<h2>Read</h2>
+				<h3>Get all location ID</h3>
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="readPlace();">Read all places now</button>
+
+
+			<div class="form-group">
+				<h3>Read a certain location info with location ID</h3>
+				<label for="locid">Location ID:</label>
+				<input type="locid" class="form-control" id="rli" placeholder="Location_ID">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="readPlace2();">Read now</button>
+			<div id="rlocnew">
+			</div>
+		</div>
+
+		
+		<div id="uloc" class="display-4">
+			<h2>Update</h2>
+			<h3>Input the loc id that you want to edit first</h3>
+			<div class="form-group">
+				<label for="locid">Location ID:</label>
+				<input type="locid" class="form-control" id="uli" placeholder="Location_ID">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="updatePlace1();">Go</button>
+			<div id="ulocnew">
+			</div>
+		</div>
+
+		<div id="ulocnew2" class="display-4">
+			<h2>Update</h2>
+			<div class="form-group">
+				<label for="locid">Location ID:</label>
+				<input type="locid" class="form-control" id="uli2">
+			</div>
+			<div class="form-group">
+				<label for="locname">Location Name:</label>
+				<input type="locname" class="form-control" id="uln2">
+			</div>
+			<div class="form-group">
+				<label for="loclat">Location Latitude:</label>
+				<input type="loclat" class="form-control" id="ulla2">
+			</div>
+
+			<div class="form-group">
+				<label for="loclong">Location Longitude:</label>
+				<input type="loclong" class="form-control" id="ullo2">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="updatePlace2();">Update now</button>
+			<div id="ulocnew3">
+			</div>
+		</div>
+
+		
+		<div id="dloc" class="display-4">
+			<h2>Delete</h2>
+			<div class="form-group">
+				<label for="locid">Location ID:</label>
+				<input type="locid" class="form-control" id="dli" placeholder="Location_ID">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="deletePlace();">Delete now</button>
+			<div id="dlocnew">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="user">
+	<div class="container">
+		<nav class="navbar navbar-expand-lg justify-content-center">
+			<button onclick="cuser()" class="btn btn-primary">Create User</button>
+			&nbsp;&nbsp;
+			<button onclick="ruser()" class="btn btn-primary">Read User</button>
+			&nbsp;&nbsp;
+			<button onclick="uuser()" class="btn btn-primary">Update User</button>
+			&nbsp;&nbsp;
+			<button onclick="duser()" class="btn btn-primary">Delete User</button>
+		</nav>
+		<div id="cuser" class="display-4">
+			<h2>Create</h2>
+			<div class="form-group">
+				<label for="uname">Username:</label>
+				<input type="uname" class="form-control" id="cun" placeholder="Username">
+			</div>
+			<div class="form-group">
+				<label for="upassword">Password:</label>
+				<input type="upassword" class="form-control" id="cup" placeholder="Password">
+			</div>
+
+			<button class="d-flex btn btn-primary" style="margin: 5px;" onclick="createUser();">Create now</button>
+
+			<div id="cusernew">
+			</div>
+		</div>
+
+		
+		<div id="ruser" class="display-4">
+			<h2>Read</h2>
+				<h3>Get all users username</h3>
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="readUser();">Read all users now</button>
+
+
+			<div class="form-group">
+				<h3>Read a certain user info with username</h3>
+				<label for="uname">Username:</label>
+				<input type="uname" class="form-control" id="run" placeholder="Username">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="readUser2();">Read now</button>
+			<div id="rusernew">
+			</div>
+		</div>
+
+		
+		<div id="uuser" class="display-4">
+			<h2>Update</h2>
+			<h3>Input the username that you want to edit first</h3>
+			<div class="form-group">
+				<label for="uname">Username:</label>
+				<input type="uname" class="form-control" id="uun" placeholder="Username">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="updateUser1();">Go</button>
+			<div id="uusernew">
+			</div>
+		</div>
+
+		<div id="uusernew2" class="display-4">
+			<h2>Update</h2>
+			<div class="form-group">
+				<label for="uname">Username:</label>
+				<input type="uname" class="form-control" id="uun2">
+			</div>
+			<div class="form-group">
+				<label for="upassword">Password:</label>
+				<input type="upassword" class="form-control" id="uup2">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="updateUser2();">Update now</button>
+			<div id="uusernew3">
+			</div>
+		</div>
+
+		
+		<div id="duser" class="display-4">
+			<h2>Delete</h2>
+			<div class="form-group">
+				<label for="uname">Username:</label>
+				<input type="uname" class="form-control" id="dun" placeholder="Username">
+			</div>
+
+			<button type="button" class="btn btn-primary" style="margin: 5px;" onclick="deleteUser();">Delete now</button>
+			<div id="dusernew">
+			</div>
+		</div>
+	</div>
+</div>
+<footer class="text-md-right text-light bg-dark p-2 mt-sm-3">
+<b>&copy; Group 2</b>
+</footer>
+
+</body>
+</html>
