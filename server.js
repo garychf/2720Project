@@ -155,23 +155,29 @@ app.get("/fav", authenticateUser, (req, res) => {
 });
 
 app.get("/home", authenticateUser, (req, res) => {
-    if(req.session.user.username==="admin")
-	res.render("admin", { user: req.session.user});
-    Loc.find({}, function(err, list) {
-    var i=0;
-    var id = {};
-    var name = {};
-    var lat = {};
-    var long = {};
-    list.forEach(function(p) {
-      id[i] = p.id;
-      name[i]=p.name;
-      lat[i]=p.latitude;
-      long[i]=p.longitude;
-      i++
-    });
-    res.send("home",{pid:id,pname:name,plat:lat,plong:long});
-  });
+    if(req.session.user.username==="admin"){
+		res.render("admin", { user: req.session.user});
+	}
+	else{
+		res.redirect("/fav");
+		/*
+	    Loc.find({}, function(err, list) {
+	    var i=0;
+	    var id = {};
+	    var name = {};
+	    var lat = {};
+	    var long = {};
+	    list.forEach(function(p) {
+	      id[i] = p.id;
+	      name[i]=p.name;
+	      lat[i]=p.latitude;
+	      long[i]=p.longitude;
+	      i++
+	    });
+	    res.send("home",{pid:id,pname:name,plat:lat,plong:long});
+	  });
+	  */
+	}
 });
 
 //single place page
@@ -274,9 +280,31 @@ app.get("/logout", authenticateUser, (req, res) => {
   req.session.user = null;
   res.redirect("/login");
 });
+app.post('/user', async (req, res)=> {
+	if(!req.body['username']||!req.body['password']){
+		res.send("User cannot be created, please check the input again!");
+		return;
+	}
+	const user = await User.findOne({ username: req.body['username']});
+	if (user) {
+      res.send("The username is taken.");
+      return;
+    }
+    const hashedPassword = await bcrypt.hash(req.body['password'], 12);
+    const u = new User({ username: req.body['username'], password: hashedPassword });
+	u.save(function(err){
+		res.send("User with username "+u.username+" and password "+u.password+" is created.");
+	});
+});
 
 //create loc from db
-app.post('/loc', function(req, res){
+app.post('/loc', async(req, res)=>{
+	const lo = await Loc.findOne({id:req.body['id']});
+
+	if(lo){
+		res.send("This location id is used.");
+		return;
+	}
 	var l = new Loc ({id: req.body['id'], name: req.body['name'], latitude: req.body['latitude'], longitude: req.body['longitude']});
 	l.save(function(err){
 		if (err){
@@ -374,13 +402,19 @@ app.delete('/loc', function(req, res){
 });
 
 //create user from db
-app.post('/user', function(req, res){
-	var u = new User ({username: req.body['username'], password: req.body['password']});
+app.post('/user', async (req, res)=> {
+	if(!req.body['username']||!req.body['password']){
+		res.send("User cannot be created, please check the input again!");
+		return;
+	}
+	const user = await User.findOne({ username: req.body['username']});
+	if (user) {
+      res.send("The username is taken.");
+      return;
+    }
+    const hashedPassword = await bcrypt.hash(req.body['password'], 12);
+    const u = new User({ username: req.body['username'], password: hashedPassword });
 	u.save(function(err){
-		if (err){
-			res.send("User cannot be created, please check the input again!");
-			return;
-		}
 		res.send("User with username "+u.username+" and password "+u.password+" is created.");
 	});
 });
@@ -436,21 +470,40 @@ app.put('/user', function(req, res){
 });
 
 //edit user from db
-app.put('/user/:username', function(req, res){
-	User.findOne({username: req.params['username']} , 
-		function(err, u){
-			if (err){
-				res.json({init:false});
-				return;
-			}
-			if (u===null){
-				res.json({init:false});
-				return;
-			}
-			u.password = req.body['password'];
-			u.save();
-			res.json({init:true,password:u.password});
-		});
+app.put('/user/:username', async (req, res)=>{
+	const u = await User.findOne({username: req.params['username']});
+	if (!u){
+		res.json({init:false});
+		return;
+	}
+	const hashedPassword = await bcrypt.hash(req.body['password'], 12);
+	u.password = hashedPassword;
+	await u.save();
+	res.json({init:true,password:u.password});
+
+});
+
+app.post("/register", async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      res.send("Please enter all the fields");
+      return;
+    }
+
+    const user = await User.findOne({ username });
+    if (user) {
+      res.send("The username is taken");
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = new User({ username, password: hashedPassword });
+
+    newUser.save().then(() => {
+        res.redirect("/registerSuccess");
+        return;
+      })
+      .catch((err) => console.log(err));
 });
 
 //delete user from db
