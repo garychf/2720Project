@@ -159,8 +159,6 @@ app.get("/home", authenticateUser, (req, res) => {
 		res.render("admin", { user: req.session.user});
 	}
 	else{
-		res.redirect("/fav");
-		/*
 	    Loc.find({}, function(err, list) {
 	    var i=0;
 	    var id = {};
@@ -174,9 +172,8 @@ app.get("/home", authenticateUser, (req, res) => {
 	      long[i]=p.longitude;
 	      i++
 	    });
-	    res.send("home",{pid:id,pname:name,plat:lat,plong:long});
+	    res.render("home",{pid:id,pname:name,plat:lat,plong:long});
 	  });
-	  */
 	}
 });
 
