@@ -234,7 +234,7 @@ app.post("/login", async (req, res) => {
       res.send("You have not filled in all the fields");
       return;
     }
-
+   
     const user = await User.findOne({ username });
     if (!user) {
       res.send("invalid username or password");
@@ -259,7 +259,10 @@ app.post("/register", async (req, res) => {
       res.send("Please enter all the fields");
       return;
     }
-
+    if (username.length<4 || username.length>20||password.length<4||password.length>20) {
+      res.send("The length of username and password should be 4-20 characters!");
+      return;
+    }
     const user = await User.findOne({ username });
     if (user) {
       res.send("The username is taken");
@@ -285,6 +288,10 @@ app.post('/user', async (req, res)=> {
 		res.send("User cannot be created, please check the input again!");
 		return;
 	}
+	if (req.body["username"].length<4 || req.body["username"].length>20||req.body['password'].length<4||req.body['password'].length>20) {
+      res.send("The length of username and password should be 4-20 characters!");
+      return;
+    }
 	const user = await User.findOne({ username: req.body['username']});
 	if (user) {
       res.send("The username is taken.");
@@ -407,6 +414,10 @@ app.post('/user', async (req, res)=> {
 		res.send("User cannot be created, please check the input again!");
 		return;
 	}
+	if (req.body["username"].length<4 || req.body["username"].length>20||req.body['password'].length<4||req.body['password'].length>20) {
+      res.send("The length of username and password should be 4-20 characters!");
+      return;
+    }
 	const user = await User.findOne({ username: req.body['username']});
 	if (user) {
       res.send("The username is taken.");
@@ -471,6 +482,10 @@ app.put('/user', function(req, res){
 
 //edit user from db
 app.put('/user/:username', async (req, res)=>{
+	if (req.params["username"].length<4 || req.params["username"].length>20||req.body['password'].length<4||req.body['password'].length>20) {
+      res.json({init:false});
+      return;
+    }
 	const u = await User.findOne({username: req.params['username']});
 	if (!u){
 		res.json({init:false});
@@ -481,29 +496,6 @@ app.put('/user/:username', async (req, res)=>{
 	await u.save();
 	res.json({init:true,password:u.password});
 
-});
-
-app.post("/register", async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      res.send("Please enter all the fields");
-      return;
-    }
-
-    const user = await User.findOne({ username });
-    if (user) {
-      res.send("The username is taken");
-      return;
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const newUser = new User({ username, password: hashedPassword });
-
-    newUser.save().then(() => {
-        res.redirect("/registerSuccess");
-        return;
-      })
-      .catch((err) => console.log(err));
 });
 
 //delete user from db
