@@ -8,9 +8,10 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css?family=Economica" rel="stylesheet">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
 
 </head>
-<body style="font-family:'Economica', sans-serif" onload="javascript:myFunction2()">
+<body style="font-family:'Economica', sans-serif">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top my-sm-3">
 		<ul class="navbar-nav">
@@ -23,6 +24,7 @@
 <div class="container bg-warning">
   <h4 class="display-4 text-light">Journey time indicators</h4>
 </div>
+
 
 <div style="text-align:center;">
 <input type="text" id="myInput" style="background-position: 10px 12px;width: 90%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;" onkeyup="myFunction()" placeholder="Search for ID...">
@@ -37,16 +39,24 @@
 		<tr>
 			<th onclick="sortTable(0)">ID</th>
   			<th onclick="sortTable(1)">Name</th>
+        <th onclick="sortTable(0)">Latitude</th>
+    			<th onclick="sortTable(1)">longitude</th>
 		</tr>
   	</thead>
 		<tbody id="table">
+      <% for (i=0;i<=number;i++) { %>
+        <tr>
+    			<td><a href='/place/<%= pid[i]%>'><%= pid[i]%></a></td>
+      			<td><%= pname[i]%></td>
+            <td><%= plat[i]%></td>
+            <td><%= plong[i]%></td>
+    		</tr>
+        <% } %>
 		</tbody>
 	</table>
 </div>
 
 <div id="googleMap" style="width:90%;height:400px;margin-left:auto; margin-right:auto;"></div>
-
-
 
 <script>
 function myFunction() {
@@ -68,22 +78,6 @@ function myFunction() {
   }
 }
 </script>
-
-
-<script>
-function myFunction2() {
-  const loc=<%= info %>;
-  var table = document.getElementById("table");
-  for (i = 0; i < loc.length; i++) {
-    var row = table.insertRow(-1);
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    cell1.innerHTML = '<a href="/place/<%= info[i].id %>">'+loc[i].id+'</a>';
-    cell2.innerHTML = loc[i].name;
-  	}
-}
-</script>
-
 
 <script>
 function sortTable(n) {
@@ -127,33 +121,36 @@ function sortTable(n) {
 
 <script>
 function myMap() {
-	const loc=<%= info %>;
-
 var mapProp= {
   center:new google.maps.LatLng(22.372935201648193, 114.10717685461066),
   zoom:11,
 };
 var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
 var infowindow = new google.maps.InfoWindow();
-
 var marker, i;
-
-for (i = 0; i < loc.length; i++) {
-	marker = new google.maps.Marker({
-		position: new google.maps.LatLng(loc[i].latitude, loc[i].longitude),
-		map: map,
-	});
-
-	google.maps.event.addListener(marker, 'click', (function(marker, i) {
-		return function() {
-			infowindow.setContent(loc[i].id+'<br>'+loc[i].name+'<br><a href="/place/<%= info[i].id %>>show details</a>');
-			infowindow.open(map, marker);
-		}
-	})(marker, i));
+var id={};
+var name={};
+var lat={};
+var long={};
+for(i=0;i<document.getElementById("myTable").rows.length-2;i++){
+var x = document.getElementById("myTable").rows[i+1].cells;
+id[i] = x[0].innerHTML;
+name[i] = x[1].innerHTML;
+lat[i] = x[2].innerHTML;
+long[i] = x[3].innerHTML;
+marker = new google.maps.Marker({
+  position: new google.maps.LatLng(lat[i], long[i]),
+  map: map
+});
+google.maps.event.addListener(marker, 'click', (function(marker, i) {
+  return function() {
+    infowindow.setContent(id[i]+"<br>"+name[i]);
+    infowindow.open(map, marker);
+  }
+})(marker, i));
 }
 }
 </script>
-
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCekcqFhT86PHg743TdzZmHreypuTzO6C0&callback=myMap"></script>
 
