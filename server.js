@@ -155,11 +155,23 @@ app.get("/fav", authenticateUser, (req, res) => {
 });
 
 app.get("/home", authenticateUser, (req, res) => {
-	if(req.session.user.username==="admin")
-		res.render("admin", { user: req.session.user});
-    Loc.find({},function(err, list) {
-    	res.render("home", { user: req.session.user, info:list});
+    if(req.session.user.username==="admin")
+	res.render("admin", { user: req.session.user});
+    Loc.find({}, function(err, list) {
+    var i=0;
+    var id = {};
+    var name = {};
+    var lat = {};
+    var long = {};
+    list.forEach(function(p) {
+      id[i] = p.id;
+      name[i]=p.name;
+      lat[i]=p.latitude;
+      long[i]=p.longitude;
+      i++
     });
+    res.send("home",{pid:id,pname:name,plat:lat,plong:long});
+  });
 });
 
 //single place page
