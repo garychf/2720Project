@@ -283,26 +283,6 @@ app.get("/logout", authenticateUser, (req, res) => {
   req.session.user = null;
   res.redirect("/login");
 });
-app.post('/user', async (req, res)=> {
-	if(!req.body['username']||!req.body['password']){
-		res.send("User cannot be created, please check the input again!");
-		return;
-	}
-	if (req.body["username"].length<4 || req.body["username"].length>20||req.body['password'].length<4||req.body['password'].length>20) {
-      res.send("The length of username and password should be 4-20 characters!");
-      return;
-    }
-	const user = await User.findOne({ username: req.body['username']});
-	if (user) {
-      res.send("The username is taken.");
-      return;
-    }
-    const hashedPassword = await bcrypt.hash(req.body['password'], 12);
-    const u = new User({ username: req.body['username'], password: hashedPassword });
-	u.save(function(err){
-		res.send("User with username "+u.username+" and password "+u.password+" is created.");
-	});
-});
 
 //create loc from db
 app.post('/loc', async(req, res)=>{
