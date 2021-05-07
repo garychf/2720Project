@@ -172,7 +172,7 @@ app.get("/home", authenticateUser, (req, res) => {
 	      long[i]=p.longitude;
 	      i++
 	    });
-	    res.render("home",{pid:id,pname:name,plat:lat,plong:long});
+	    res.render("home",{user: req.session.user,number:i,pid:id,pname:name,plat:lat,plong:long});
 	  });
 	}
 });
