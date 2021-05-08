@@ -90,6 +90,11 @@ Shea Wing Tung 1155126215
   		document.getElementById("duser").style.display="block";
   		document.getElementById('dusernew').innerHTML="";
   	}
+  	function loadPlace(){
+  		fetch('http://csci2720-g73.cse.cuhk.edu.hk/init')
+		.then((response)=>response.text())
+	    .then((data)=> console.log(data));
+  	}
   	function createPlace(){
   		var data = {
   			id: document.getElementById('cli').value,
@@ -295,6 +300,8 @@ Shea Wing Tung 1155126215
 </div>
 
 <nav class="navbar navbar-expand-lg justify-content-center">
+	<button onclick="loadPlace()" class="btn btn-success">Load Place</button>
+	&nbsp;&nbsp;
 	<button onclick="loc()" class="btn btn-success">Edit Place</button>
 	&nbsp;&nbsp;
 	<button onclick="user()" class="btn btn-success">Edit User</button>
