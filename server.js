@@ -176,19 +176,19 @@ app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      res.send("You have not filled in all the fields");
+      res.send("<a href='/'' class='btn btn-primary mb-5'>Go Back</a> <h1>You have not filled in all the fields</h1>");
       return;
     }
    
     const user = await User.findOne({ username });
     if (!user) {
-      res.send("invalid username or password");
+      res.send("<a href='/'' class='btn btn-primary mb-5'>Go Back</a> <h1>invalid username or password</h1>");
       return;
     }
 
     const pwCheck = await bcrypt.compare(password,user.password);
     if (!pwCheck) {
-      res.send("Password is wrong");
+      res.send("<a href='/'' class='btn btn-primary mb-5'>Go Back</a> <h1>Password is wrong</h1>");
       return;
     }
 
@@ -201,16 +201,16 @@ app.post("/login", async (req, res) => {
 app.post("/register", async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
-      res.send("Please enter all the fields");
+      res.send("<a href='/'' class='btn btn-primary mb-5'>Go Back</a> <h1>Please enter all the fields</h1>");
       return;
     }
     if (username.length<4 || username.length>20||password.length<4||password.length>20) {
-      res.send("The length of username and password should be 4-20 characters!");
+      res.send("<a href='/'' class='btn btn-primary mb-5'>Go Back</a> <h1>The length of username and password should be 4-20 characters!</h1>");
       return;
     }
     const user = await User.findOne({ username });
     if (user) {
-      res.send("The username is taken");
+      res.send("<a href='/'' class='btn btn-primary mb-5'>Go Back</a> <h1>The username is taken</h1>");
       return;
     }
 
