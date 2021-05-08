@@ -1,3 +1,11 @@
+<!--
+Chan Hon Fung  1155124829
+Liu Kam Nam    1155109652
+Lai Chun Hei   1155143433
+Au Chun Hei    1155125607
+Shea Wing Tung 1155126215
+-->
+
 <!doctype html>
 <html lang="en">
 
@@ -113,143 +121,8 @@
         <h2>For <i id="<%= i.place %>p"></i></h2>
         <h3>The best path is <i id="<%= i.place %>o"></i>, the journey time is <i id="<%= i.place %>k">0</i> minutes.</h3>
         <% } %>
-        <!--
-        <table id="myTable" class="table table-striped table-hover">
-            <thead class="thead-dark">
-            </thead>
-            <tbody id="table">
-            </tbody>
-        </table>
-        --->
     </div>
-    <!---
-    <script>
-        function myFunction() {
-            const loc = [{
-                id: "H1",
-                name: "Gloucester Road eastbound near the Revenue Tower",
-                latitude: 22.279311622,
-                longitude: 114.172101664
-            }, {
-                id: "H2",
-                name: "Canal Road Flyover northbound near exit of Aberdeen Tunnel",
-                latitude: 22.271587756,
-                longitude: 114.180185283
-            }, {
-                id: "H3",
-                name: "Island Eastern Corridor westbound near City Garden",
-                latitude: 22.292018819,
-                longitude: 114.193869616
-            }, {
-                id: "H11",
-                name: "Island Eastern Corridor westbound near Lei King Wan",
-                latitude: 22.285235888,
-                longitude: 114.221346549
-            }, {
-                id: "K01",
-                name: "Ferry Street southbound near Charming Gardena",
-                latitude: 22.315044916,
-                longitude: 114.166786346
-            }, {
-                id: "K02",
-                name: "Gascoigne Road eastbound near the Hong Kong Polytechnic University",
-                latitude: 22.305896494,
-                longitude: 114.178474746
-            }, {
-                id: "K03",
-                name: "Waterloo Road southbound near Kowloon Hospital",
-                latitude: 22.324182195,
-                longitude: 114.178378266
-            }, {
-                id: "K04",
-                name: "Princess Margaret Road southbound near Oi Man Estate",
-                latitude: 22.31331063,
-                longitude: 114.176931903
-            }, {
-                id: "K05",
-                name: "Kai Fuk Road northbound near the petrol stations",
-                latitude: 22.319902728,
-                longitude: 114.206732056
-            }, {
-                id: "K06",
-                name: "Chatham Road North southbound near Fat Kwong Street Playground",
-                latitude: 22.309177485,
-                longitude: 114.184084134
-            }, {
-                id: "SJ1",
-                name: "Tai Po Road – Sha Tin near the Racecourse",
-                latitude: 22.404797024,
-                longitude: 114.20734796
-            }, {
-                id: "SJ2",
-                name: "Tate’s Cairn Highway near Shek Mun",
-                latitude: 22.389757785,
-                longitude: 114.210593926
-            }, {
-                id: "SJ3",
-                name: "Tolo Highway near Science Park",
-                latitude: 22.426975789,
-                longitude: 114.206972621
-            }, {
-                id: "SJ4",
-                name: "San Tin Highway near Pok Wai Road",
-                latitude: 22.464106829,
-                longitude: 114.053710459
-            }, {
-                id: "SJ5",
-                name: "Tuen Mun Road near Tuen Mun Heung Sze Wui Road",
-                latitude: 22.401075772,
-                longitude: 113.97722659
-            }, ];
-
-            if (current_loc_id == null) {
-                alert("Please select the location before add it!!");
-                return;
-            }
-
-            mongoose.connect("mongodb://localhost/dataBase", {}).then(() => {
-                console.log("Successfully connected to MongoDB :)");
-            }).catch((err) => {
-                console.log(err);
-                return;
-            });
-
-            const UserSchema = new mongoose.Schema({
-                username: {
-                    type: String,
-                    required: true,
-                },
-                password: {
-                    type: String,
-                    required: true,
-                },
-                favPlace: {
-                    type: Array
-                }
-            });
-
-            User = new mongoose.model("User", UserSchema);
-
-            const user = await User.findOne({
-                username: user.username
-            }).exec();
-            const userFavList = user.favPlace;
-            var table = document.getElementById("table");
-            for (i = 0; i < loc.length; i++) {
-                if (userFavList.includes(loc[i].id)) {
-                    var row = table.insertRow(-1);
-                    var cell1 = row.insertCell(0);
-                    var cell2 = row.insertCell(1);
-                    cell1.innerHTML = loc[i].id;
-                    cell2.innerHTML = loc[i].name;
-                } else {
-                    continue;
-                }
-            }
-        }
-    </script>
-    --->
-
+   
     <footer class="text-md-right text-light bg-dark p-2 mt-sm-3">
         <b>&copy; Group 2</b>
     </footer>
